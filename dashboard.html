@@ -123,61 +123,62 @@
     .kpi-val { font-size: 24px; font-weight: 800; }
 
     /* Main 2-Column Split */
-    .content-grid { display: grid; grid-template-columns: 8fr 4fr; gap: 18px; }
-    @media (max-width: 1050px) { .content-grid { grid-template-columns: 1fr; } }
+    .content-grid { display: grid; grid-template-columns: 8fr 4fr; gap: 12px; align-items: start; }
+    @media (max-width: 1000px) { .content-grid { grid-template-columns: 1fr; } }
 
     /* Bays Container Card */
-    .panel { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
-    .panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; }
-    .panel-header h2 { font-size: 16px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+    .panel { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 8px; }
+    .panel-header h2 { font-size: 14px; font-weight: 800; color: var(--accent); display: flex; align-items: center; gap: 6px; }
 
     /* Custom Add Bay Form Box */
-    .add-bay-box { background: rgba(7, 13, 30, 0.8); border: 1px dashed var(--accent); border-radius: 12px; padding: 14px; display: grid; grid-template-columns: 2fr 1.5fr 1fr auto; gap: 10px; align-items: center; }
-    @media (max-width: 750px) { .add-bay-box { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 480px) { .add-bay-box { grid-template-columns: 1fr; } }
+    .add-bay-box { background: rgba(0, 0, 0, 0.25); border: 1px dashed var(--accent); border-radius: 8px; padding: 8px 10px; display: grid; grid-template-columns: 2fr 1.5fr 1fr auto; gap: 8px; align-items: center; }
+    @media (max-width: 650px) { .add-bay-box { grid-template-columns: 1fr 1fr; } }
 
-    .input-field { background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: #fff; padding: 9px 12px; font-size: 12px; border-radius: 8px; width: 100%; }
+    .input-field { background: var(--card-bg); border: 1px solid var(--card-border); color: #fff; padding: 6px 10px; font-size: 11px; border-radius: 6px; width: 100%; }
     .input-field:focus { outline: none; border-color: var(--accent); }
 
-    /* Dynamic Bays Grid */
-    .bays-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
+    /* Exactly 2x2 Even Grid - No Hanging Lone Cards or Blank Gaps */
+    .bays-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    @media (max-width: 600px) { .bays-grid { grid-template-columns: 1fr; } }
     
-    .bay-card { background: rgba(7, 14, 30, 0.6); border-radius: 14px; padding: 16px; border: 2px solid transparent; display: flex; flex-direction: column; align-items: center; transition: all 0.25s ease; position: relative; }
+    .bay-card { background: rgba(0, 0, 0, 0.25); border: 1.5px solid var(--card-border); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; transition: all 0.2s ease; position: relative; }
     .bay-card.free { border-color: var(--free-border); background: var(--free-bg); }
     .bay-card.occupied { border-color: var(--occ-border); background: var(--occ-bg); }
     .bay-card.reserved { border-color: var(--vip-border); background: var(--vip-bg); }
 
-    .bay-top { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .bay-title { font-size: 15px; font-weight: 800; }
+    .bay-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+    .bay-title { font-size: 13px; font-weight: 800; }
     
-    .bay-badge { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 12px; text-transform: uppercase; }
-    .bay-badge.free { background: rgba(16,185,129,0.2); color: var(--free); border: 1px solid var(--free); }
-    .bay-badge.occupied { background: rgba(244,63,94,0.2); color: var(--occ); border: 1px solid var(--occ); }
-    .bay-badge.reserved { background: rgba(245,158,11,0.2); color: var(--vip); border: 1px solid var(--vip); }
+    .bay-badge { font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 8px; text-transform: uppercase; }
+    .bay-badge.free { background: rgba(16,185,129,0.25); color: var(--free); border: 1px solid var(--free); }
+    .bay-badge.occupied { background: rgba(244,63,94,0.25); color: var(--occ); border: 1px solid var(--occ); }
+    .bay-badge.reserved { background: rgba(245,158,11,0.25); color: var(--vip); border: 1px solid var(--vip); }
 
-    .bay-icon { font-size: 40px; margin: 4px 0; }
+    .bay-mid-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .bay-icon { font-size: 26px; min-width: 30px; text-align: center; margin: 0; }
     
-    .range-box { width: 100%; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06); }
-    .range-lbl { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 3px; }
-    input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+    .range-box { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .range-lbl { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); }
+    input[type=range] { width: 100%; height: 4px; accent-color: var(--accent); cursor: pointer; }
 
-    .telemetry-tbl { width: 100%; font-size: 11px; margin-top: 6px; }
+    .telemetry-tbl { width: 100%; font-size: 10px; border-collapse: collapse; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 4px; }
     .telemetry-tbl tr td { padding: 2px 0; color: var(--muted); }
     .telemetry-tbl tr td:last-child { text-align: right; font-weight: 700; color: #fff; }
 
-    .bay-actions { width: 100%; display: flex; gap: 6px; margin-top: 8px; }
-    .btn-card { flex: 1; padding: 6px 4px; font-size: 10px; font-weight: 700; border-radius: 6px; cursor: pointer; border: none; transition: 0.2s; }
-    .btn-card.res { background: rgba(245, 158, 11, 0.2); color: var(--vip); border: 1px solid var(--vip); }
+    .bay-actions { width: 100%; display: flex; gap: 6px; margin-top: 4px; }
+    .btn-card { flex: 1; padding: 4px 6px; font-size: 10px; font-weight: 700; border-radius: 4px; cursor: pointer; border: none; transition: 0.2s; }
+    .btn-card.res { background: var(--vip-bg); color: var(--vip); border: 1px solid var(--vip); }
     .btn-card.res:hover { background: var(--vip); color: #000; }
-    .btn-card.del { background: rgba(244, 63, 94, 0.15); color: var(--occ); border: 1px solid var(--occ); max-width: 32px; }
+    .btn-card.del { background: rgba(244, 63, 94, 0.15); color: var(--occ); border: 1px solid var(--occ); max-width: 30px; }
     .btn-card.del:hover { background: var(--occ); color: #fff; }
 
     /* Right Sidebar Controls */
-    .sidebar { display: flex; flex-direction: column; gap: 16px; }
+    .sidebar { display: flex; flex-direction: column; gap: 10px; }
 
     /* ANPR Screen */
-    .anpr-box { background: #000; border: 2px solid #243455; border-radius: 12px; padding: 14px; text-align: center; }
-    .plate-badge { background: #fbbf24; color: #000; font-family: 'Courier New', monospace; font-size: 18px; font-weight: 800; letter-spacing: 2px; padding: 4px 12px; border-radius: 6px; display: inline-block; margin: 8px 0; border: 2px solid #000; }
+    .anpr-box { background: #000; border: 1px solid var(--card-border); border-radius: 8px; padding: 10px; text-align: center; }
+    .plate-badge { background: #fbbf24; color: #000; font-family: 'Courier New', monospace; font-size: 16px; font-weight: 800; letter-spacing: 2px; padding: 3px 10px; border-radius: 4px; display: inline-block; margin: 6px 0; border: 2px solid #000; }
 
     /* OLED Screen Preview */
     .oled-screen { background: #000; border: 3px solid #334155; border-radius: 10px; padding: 10px; font-family: 'Courier New', monospace; color: #38bdf8; height: 110px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: inset 0 0 15px rgba(56,189,248,0.2); }
@@ -434,22 +435,26 @@
         bayCard.innerHTML = `
           <div class="bay-top">
             <span class="bay-title">${bay.name}</span>
-            <span class="${badgeClass}" id="badge-${bay.id}">${badgeText}</span>
+            <span class="${badgeClass}">${badgeText}</span>
           </div>
-          <div class="bay-icon">${icon}</div>
-          
-          <div class="range-box">
-            <div class="range-lbl">
-              <span>Distance ToF:</span>
-              <b id="dist-lbl-${bay.id}">${bay.distance} cm</b>
+
+          <div class="bay-mid-row">
+            <div class="bay-icon">${icon}</div>
+            <div class="range-box">
+              <div class="range-lbl">
+                <span>Distance:</span>
+                <b>${bay.distance} cm</b>
+              </div>
+              <input type="range" min="5" max="200" value="${bay.distance}" oninput="onSliderChange(${bay.id}, this.value)" />
             </div>
-            <input type="range" min="5" max="200" value="${bay.distance}" id="slider-${bay.id}" oninput="onSliderChange(${bay.id}, this.value)" />
           </div>
 
           <table class="telemetry-tbl">
-            <tr><td>Plate:</td><td id="plate-${bay.id}">${bay.plate}</td></tr>
-            <tr><td>Duration:</td><td id="dur-${bay.id}">--</td></tr>
-            <tr><td>Rate / Fee:</td><td id="fee-${bay.id}" style="color: var(--vip);">$0.00 ($${bay.rate}/h)</td></tr>
+            <tr>
+              <td>Plate: <b>${bay.plate}</b></td>
+              <td>Dwell: <b id="dur-${bay.id}">--</b></td>
+              <td style="text-align:right;">Fee: <b id="fee-${bay.id}" style="color: var(--vip);">$0.00</b></td>
+            </tr>
           </table>
 
           <div class="bay-actions">
