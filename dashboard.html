@@ -138,47 +138,48 @@
     .input-field { background: var(--card-bg); border: 1px solid var(--card-border); color: #fff; padding: 6px 10px; font-size: 11px; border-radius: 6px; width: 100%; }
     .input-field:focus { outline: none; border-color: var(--accent); }
 
-    /* Exactly 2x2 Even Grid - No Hanging Lone Cards or Blank Gaps */
-    .bays-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    /* Exactly 2x2 Even Grid - High Visibility & Maximum Contrast */
+    .bays-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
     @media (max-width: 600px) { .bays-grid { grid-template-columns: 1fr; } }
     
-    .bay-card { background: rgba(0, 0, 0, 0.25); border: 1.5px solid var(--card-border); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; transition: all 0.2s ease; position: relative; }
-    .bay-card.free { border-color: var(--free-border); background: var(--free-bg); }
-    .bay-card.occupied { border-color: var(--occ-border); background: var(--occ-bg); }
-    .bay-card.reserved { border-color: var(--vip-border); background: var(--vip-bg); }
+    .bay-card { background: #0c162b; border: 2.5px solid var(--card-border); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; transition: all 0.2s ease; position: relative; }
+    .bay-card.free { border-color: var(--free-border); background: var(--free-bg); box-shadow: 0 0 15px rgba(0, 230, 118, 0.18); }
+    .bay-card.occupied { border-color: var(--occ-border); background: var(--occ-bg); box-shadow: 0 0 15px rgba(255, 23, 68, 0.22); }
+    .bay-card.reserved { border-color: var(--vip); background: var(--vip-bg); box-shadow: 0 0 15px rgba(255, 171, 0, 0.22); }
 
     .bay-top { width: 100%; display: flex; justify-content: space-between; align-items: center; }
-    .bay-title { font-size: 13px; font-weight: 800; }
+    .bay-title { font-size: 17px; font-weight: 900; color: #ffffff; }
     
-    .bay-badge { font-size: 9px; font-weight: 800; padding: 2px 7px; border-radius: 8px; text-transform: uppercase; }
-    .bay-badge.free { background: rgba(16,185,129,0.25); color: var(--free); border: 1px solid var(--free); }
-    .bay-badge.occupied { background: rgba(244,63,94,0.25); color: var(--occ); border: 1px solid var(--occ); }
-    .bay-badge.reserved { background: rgba(245,158,11,0.25); color: var(--vip); border: 1px solid var(--vip); }
+    .bay-badge { font-size: 12px; font-weight: 900; padding: 4px 10px; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .bay-badge.free { background: var(--free); color: #000; font-weight: 900; }
+    .bay-badge.occupied { background: var(--occ); color: #fff; font-weight: 900; }
+    .bay-badge.reserved { background: var(--vip); color: #000; font-weight: 900; }
 
-    .bay-mid-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .bay-icon { font-size: 26px; min-width: 30px; text-align: center; margin: 0; }
+    .bay-mid-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    .bay-icon { font-size: 34px; min-width: 38px; text-align: center; margin: 0; }
     
-    .range-box { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-    .range-lbl { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); }
-    input[type=range] { width: 100%; height: 4px; accent-color: var(--accent); cursor: pointer; }
+    .range-box { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+    .range-lbl { display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; color: #ffffff; }
+    .range-lbl b { color: var(--accent); font-size: 14px; }
+    input[type=range] { width: 100%; height: 8px; accent-color: var(--accent); cursor: pointer; border-radius: 4px; }
 
-    .telemetry-tbl { width: 100%; font-size: 10px; border-collapse: collapse; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 4px; }
-    .telemetry-tbl tr td { padding: 2px 0; color: var(--muted); }
-    .telemetry-tbl tr td:last-child { text-align: right; font-weight: 700; color: #fff; }
+    .telemetry-tbl { width: 100%; font-size: 13px; font-weight: 700; border-collapse: collapse; border-top: 1.5px solid rgba(255,255,255,0.15); padding-top: 6px; }
+    .telemetry-tbl tr td { padding: 4px 2px; color: #ffffff; }
+    .telemetry-tbl tr td:last-child { text-align: right; font-weight: 800; color: var(--vip); }
 
-    .bay-actions { width: 100%; display: flex; gap: 6px; margin-top: 4px; }
-    .btn-card { flex: 1; padding: 4px 6px; font-size: 10px; font-weight: 700; border-radius: 4px; cursor: pointer; border: none; transition: 0.2s; }
-    .btn-card.res { background: var(--vip-bg); color: var(--vip); border: 1px solid var(--vip); }
-    .btn-card.res:hover { background: var(--vip); color: #000; }
-    .btn-card.del { background: rgba(244, 63, 94, 0.15); color: var(--occ); border: 1px solid var(--occ); max-width: 30px; }
-    .btn-card.del:hover { background: var(--occ); color: #fff; }
+    .bay-actions { width: 100%; display: flex; gap: 8px; margin-top: 4px; }
+    .btn-card { flex: 1; padding: 7px 10px; font-size: 12px; font-weight: 900; border-radius: 6px; cursor: pointer; border: none; transition: 0.2s; text-transform: uppercase; }
+    .btn-card.res { background: var(--vip); color: #000; }
+    .btn-card.res:hover { filter: brightness(1.2); }
+    .btn-card.del { background: var(--occ); color: #fff; max-width: 36px; font-size: 13px; }
+    .btn-card.del:hover { filter: brightness(1.2); }
 
     /* Right Sidebar Controls */
-    .sidebar { display: flex; flex-direction: column; gap: 10px; }
+    .sidebar { display: flex; flex-direction: column; gap: 14px; }
 
     /* ANPR Screen */
-    .anpr-box { background: #000; border: 1px solid var(--card-border); border-radius: 8px; padding: 10px; text-align: center; }
-    .plate-badge { background: #fbbf24; color: #000; font-family: 'Courier New', monospace; font-size: 16px; font-weight: 800; letter-spacing: 2px; padding: 3px 10px; border-radius: 4px; display: inline-block; margin: 6px 0; border: 2px solid #000; }
+    .anpr-box { background: #000; border: 2px solid var(--card-border); border-radius: 10px; padding: 12px; text-align: center; }
+    .plate-badge { background: #ffd600; color: #000; font-family: monospace; font-size: 18px; font-weight: 900; letter-spacing: 2px; padding: 5px 12px; border-radius: 6px; display: inline-block; margin: 6px 0; border: 2px solid #000; }
 
     /* OLED Screen Preview */
     .oled-screen { background: #000; border: 3px solid #334155; border-radius: 10px; padding: 10px; font-family: 'Courier New', monospace; color: #38bdf8; height: 110px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: inset 0 0 15px rgba(56,189,248,0.2); }
