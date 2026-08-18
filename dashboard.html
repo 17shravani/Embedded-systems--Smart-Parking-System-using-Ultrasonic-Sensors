@@ -1,44 +1,101 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="midnight">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Enterprise Smart Parking IoT Management Platform</title>
   <style>
-    :root {
-      --bg: #070d1e;
-      --card-bg: #111c35;
+    /* Theme Palette Variables */
+    :root[data-theme="midnight"] {
+      --bg: radial-gradient(circle at 50% 0%, #172554, #030712);
+      --card-bg: #0f172a;
       --card-border: rgba(255, 255, 255, 0.08);
       --accent: #38bdf8;
       --accent-glow: rgba(56, 189, 248, 0.35);
       --free: #10b981;
-      --free-bg: rgba(16, 185, 129, 0.1);
-      --free-border: rgba(16, 185, 129, 0.4);
+      --free-bg: rgba(16, 185, 129, 0.12);
+      --free-border: rgba(16, 185, 129, 0.45);
       --occ: #f43f5e;
-      --occ-bg: rgba(244, 63, 94, 0.1);
-      --occ-border: rgba(244, 63, 94, 0.4);
+      --occ-bg: rgba(244, 63, 94, 0.12);
+      --occ-border: rgba(244, 63, 94, 0.45);
       --vip: #f59e0b;
-      --vip-bg: rgba(245, 158, 11, 0.1);
-      --vip-border: rgba(245, 158, 11, 0.4);
       --ev: #a855f7;
       --text: #f8fafc;
       --muted: #94a3b8;
     }
 
+    :root[data-theme="emerald"] {
+      --bg: radial-gradient(circle at 50% 0%, #064e3b, #022c22);
+      --card-bg: #064e3bcc;
+      --card-border: rgba(52, 211, 153, 0.25);
+      --accent: #34d399;
+      --accent-glow: rgba(52, 211, 153, 0.35);
+      --free: #10b981;
+      --free-bg: rgba(16, 185, 129, 0.15);
+      --free-border: #10b981;
+      --occ: #fb7185;
+      --occ-bg: rgba(251, 113, 133, 0.15);
+      --occ-border: #fb7185;
+      --vip: #fbbf24;
+      --ev: #c084fc;
+      --text: #f0fdf4;
+      --muted: #a7f3d0;
+    }
+
+    :root[data-theme="cyber"] {
+      --bg: radial-gradient(circle at 50% 0%, #311042, #090014);
+      --card-bg: #180926;
+      --card-border: rgba(236, 72, 153, 0.25);
+      --accent: #ec4899;
+      --accent-glow: rgba(236, 72, 153, 0.4);
+      --free: #06b6d4;
+      --free-bg: rgba(6, 182, 212, 0.15);
+      --free-border: #06b6d4;
+      --occ: #f43f5e;
+      --occ-bg: rgba(244, 63, 94, 0.15);
+      --occ-border: #f43f5e;
+      --vip: #eab308;
+      --ev: #d946ef;
+      --text: #fdf4ff;
+      --muted: #f0abfc;
+    }
+
+    :root[data-theme="light"] {
+      --bg: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+      --card-bg: #ffffff;
+      --card-border: rgba(0, 0, 0, 0.08);
+      --accent: #0284c7;
+      --accent-glow: rgba(2, 132, 199, 0.25);
+      --free: #059669;
+      --free-bg: rgba(5, 150, 105, 0.08);
+      --free-border: rgba(5, 150, 105, 0.3);
+      --occ: #e11d48;
+      --occ-bg: rgba(225, 29, 72, 0.08);
+      --occ-border: rgba(225, 29, 72, 0.3);
+      --vip: #d97706;
+      --ev: #7c3aed;
+      --text: #0f172a;
+      --muted: #64748b;
+    }
+
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { background: radial-gradient(circle at 50% 0%, #172545, var(--bg)); color: var(--text); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+    body { background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; transition: background 0.3s ease, color 0.3s ease; }
     
     .app-container { max-width: 1360px; width: 100%; display: flex; flex-direction: column; gap: 18px; }
 
     /* Top Nav */
-    header { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+    header { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); flex-wrap: wrap; gap: 12px; }
     .brand { display: flex; align-items: center; gap: 14px; }
     .brand-icon { font-size: 28px; background: rgba(56, 189, 248, 0.15); padding: 8px 12px; border-radius: 12px; border: 1px solid var(--accent); }
     .brand-text h1 { font-size: 20px; color: var(--accent); font-weight: 800; }
     .brand-text p { font-size: 12px; color: var(--muted); }
     
-    .nav-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .btn-nav { background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: #fff; padding: 8px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+    .nav-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .theme-switch { display: flex; background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); padding: 3px; border-radius: 10px; gap: 3px; }
+    .theme-btn { background: transparent; border: none; color: var(--muted); padding: 5px 10px; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+    .theme-btn.active { background: var(--accent); color: #000; font-weight: 800; }
+    
+    .btn-nav { background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: var(--text); padding: 8px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
     .btn-nav:hover { background: rgba(255,255,255,0.15); }
     .btn-accent { background: var(--accent); color: #070d1e; border: none; }
     .btn-accent:hover { filter: brightness(1.15); }
@@ -153,10 +210,18 @@
         </div>
       </div>
       <div class="nav-actions">
+        <!-- 4 Multi-Theme Switcher -->
+        <div class="theme-switch">
+          <button class="theme-btn active" onclick="setTheme('midnight')">🌙 Midnight</button>
+          <button class="theme-btn" onclick="setTheme('emerald')">🌲 Emerald</button>
+          <button class="theme-btn" onclick="setTheme('cyber')">🌆 Cyberpunk</button>
+          <button class="theme-btn" onclick="setTheme('light')">☀️ Light</button>
+        </div>
+
         <!-- Autopilot Bot Toggle -->
         <button class="autopilot-pill" id="autopilot-btn" onclick="toggleAutopilot()">
           <div class="pulse-dot" id="autopilot-dot"></div>
-          <span id="autopilot-label">Auto-Traffic Bot: OFF</span>
+          <span id="autopilot-label">Auto-Traffic: OFF</span>
         </button>
         <button class="btn-nav btn-accent" onclick="exportCSV()">Export CSV 📥</button>
       </div>
@@ -300,6 +365,15 @@
   </div>
 
   <script>
+    // Theme Switcher function
+    function setTheme(themeName) {
+      document.documentElement.setAttribute('data-theme', themeName);
+      document.querySelectorAll('.theme-btn').forEach(btn => {
+        btn.className = btn.innerText.toLowerCase().includes(themeName) ? 'theme-btn active' : 'theme-btn';
+      });
+      logEvent('Theme switched to: ' + themeName.toUpperCase());
+    }
+
     // State management
     let totalRevenue = 0.00;
     let autopilotInterval = null;
