@@ -1,4 +1,6 @@
 ﻿# 🚗 Smart Parking System using Ultrasonic Sensors (IoT & Embedded Systems)
+ ![Uploading Screenshot 2026-08-18 212838.png…]()
+
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Microcontroller](https://img.shields.io/badge/Microcontroller-ESP32%20%2F%20Arduino%20UNO-blue)](https://www.espressif.com/)
