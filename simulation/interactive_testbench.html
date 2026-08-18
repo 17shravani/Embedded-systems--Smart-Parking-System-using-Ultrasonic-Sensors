@@ -1,0 +1,269 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Parking Interactive Testbench & Emulator</title>
+  <style>
+    :root {
+      --bg: #0b1329;
+      --card: #1a2642;
+      --accent: #38bdf8;
+      --free: #10b981;
+      --occ: #f43f5e;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { background: radial-gradient(circle at top, #1e293b, var(--bg)); color: var(--text); padding: 20px; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
+    .container { max-width: 1100px; width: 100%; }
+    
+    header { background: var(--card); border-radius: 16px; padding: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+    h1 { color: var(--accent); font-size: 24px; margin-bottom: 6px; }
+    
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } }
+    
+    .card { background: var(--card); border-radius: 16px; padding: 20px; border: 1px solid rgba(255,255,255,0.08); }
+    .card h2 { font-size: 17px; color: var(--accent); margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 8px; }
+    
+    /* OLED Emulator */
+    .oled-screen { background: #000; border: 4px solid #334155; border-radius: 8px; width: 100%; height: 160px; padding: 10px; font-family: 'Courier New', monospace; color: #38bdf8; display: flex; flex-direction: column; justify-content: space-between; box-shadow: inset 0 0 15px rgba(56,189,248,0.2); }
+    .oled-header { background: #38bdf8; color: #000; font-weight: bold; text-align: center; padding: 2px 0; font-size: 13px; }
+    .oled-status { font-size: 16px; font-weight: bold; text-align: center; margin: 8px 0; }
+    .oled-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 14px; }
+    
+    /* Sensor Sliders */
+    .sensor-row { margin-bottom: 14px; }
+    .sensor-label { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; }
+    input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+    
+    /* Hardware Actuators */
+    .actuator-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; background: rgba(0,0,0,0.2); padding: 10px 14px; border-radius: 10px; }
+    .servo-arm { width: 80px; height: 10px; background: #fbbf24; transform-origin: left center; transition: transform 0.4s ease-out; border-radius: 4px; }
+    .servo-arm.open { transform: rotate(-90deg); }
+    .buzzer-dot { width: 18px; height: 18px; border-radius: 50%; background: #334155; }
+    .buzzer-dot.active { background: #f43f5e; box-shadow: 0 0 12px #f43f5e; animation: pulse 0.4s infinite; }
+    @keyframes pulse { 0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; } }
+    
+    /* Bays Visualizer */
+    .bays-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+    .bay { background: rgba(0,0,0,0.3); border-radius: 12px; padding: 12px 6px; text-align: center; border: 2px solid transparent; }
+    .bay.free { border-color: var(--free); background: rgba(16,185,129,0.1); }
+    .bay.occ { border-color: var(--occ); background: rgba(244,63,94,0.15); }
+    .led-indicator { width: 12px; height: 12px; border-radius: 50%; margin: 6px auto; }
+    .led-indicator.green { background: var(--free); box-shadow: 0 0 8px var(--free); }
+    .led-indicator.red { background: var(--occ); box-shadow: 0 0 8px var(--occ); }
+    
+    pre { background: #000; padding: 12px; border-radius: 8px; color: #a5f3fc; font-size: 12px; overflow-x: auto; max-height: 140px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🚗 Smart Parking Hardware Emulator & Live Testbench</h1>
+      <p style="color: var(--muted); font-size: 14px;">Interactive Virtual Hardware Simulator for Distance ToF Sensors, OLED Display, LED Indicators & Gate Barrier</p>
+    </header>
+
+    <div class="grid">
+      <!-- Left: Ultrasonic Controls -->
+      <div class="card">
+        <h2>🎛️ Ultrasonic Sensors (Hardware Stimulus)</h2>
+        
+        <div class="sensor-row">
+          <div class="sensor-label"><span>Bay 01 Distance:</span> <b id="s1-val">120 cm</b></div>
+          <input type="range" id="s1" min="5" max="200" value="120" oninput="simUpdate()">
+        </div>
+
+        <div class="sensor-row">
+          <div class="sensor-label"><span>Bay 02 Distance:</span> <b id="s2-val">120 cm</b></div>
+          <input type="range" id="s2" min="5" max="200" value="120" oninput="simUpdate()">
+        </div>
+
+        <div class="sensor-row">
+          <div class="sensor-label"><span>Bay 03 Distance:</span> <b id="s3-val">120 cm</b></div>
+          <input type="range" id="s3" min="5" max="200" value="120" oninput="simUpdate()">
+        </div>
+
+        <div class="sensor-row">
+          <div class="sensor-label"><span>Bay 04 Distance:</span> <b id="s4-val">120 cm</b></div>
+          <input type="range" id="s4" min="5" max="200" value="120" oninput="simUpdate()">
+        </div>
+
+        <p style="font-size: 12px; color: var(--muted); margin-top: 10px;">
+          💡 <i>Threshold is set to <b>35 cm</b>. Slide distance below 35 cm to simulate a parked vehicle.</i>
+        </p>
+
+        <!-- Bays Status -->
+        <div class="bays-grid">
+          <div class="bay free" id="b1-card">
+            <div id="b1-icon" style="font-size: 24px;">🅿️</div>
+            <div style="font-size: 13px; font-weight: bold;">Bay 1</div>
+            <div class="led-indicator green" id="b1-led"></div>
+          </div>
+          <div class="bay free" id="b2-card">
+            <div id="b2-icon" style="font-size: 24px;">🅿️</div>
+            <div style="font-size: 13px; font-weight: bold;">Bay 2</div>
+            <div class="led-indicator green" id="b2-led"></div>
+          </div>
+          <div class="bay free" id="b3-card">
+            <div id="b3-icon" style="font-size: 24px;">🅿️</div>
+            <div style="font-size: 13px; font-weight: bold;">Bay 3</div>
+            <div class="led-indicator green" id="b3-led"></div>
+          </div>
+          <div class="bay free" id="b4-card">
+            <div id="b4-icon" style="font-size: 24px;">🅿️</div>
+            <div style="font-size: 13px; font-weight: bold;">Bay 4</div>
+            <div class="led-indicator green" id="b4-led"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: OLED and Actuators -->
+      <div class="card">
+        <h2>📟 SSD1306 OLED (128x64 I2C Graphic Display)</h2>
+        <div class="oled-screen">
+          <div class="oled-header">SMART PARKING IOT</div>
+          <div class="oled-status" id="oled-avail">FREE: 4 / 4</div>
+          <div style="border-top: 1px dashed #38bdf8; margin: 4px 0;"></div>
+          <div class="oled-grid">
+            <div id="oled-s1">B1: [FREE]</div>
+            <div id="oled-s2">B2: [FREE]</div>
+            <div id="oled-s3">B3: [FREE]</div>
+            <div id="oled-s4">B4: [FREE]</div>
+          </div>
+        </div>
+
+        <h2 style="margin-top: 20px;">⚙️ Actuators & Alerts</h2>
+        <div class="actuator-row">
+          <div>
+            <b style="font-size: 14px;">SG90 Servo Barrier Gate:</b>
+            <div id="servo-text" style="font-size: 12px; color: var(--free);">ANGLE: 90° (BARRIER OPEN)</div>
+          </div>
+          <div style="width: 80px; height: 30px; display: flex; align-items: flex-end;">
+            <div class="servo-arm open" id="servo-arm"></div>
+          </div>
+        </div>
+
+        <div class="actuator-row">
+          <div>
+            <b style="font-size: 14px;">Piezo Buzzer Alarm:</b>
+            <div id="buzzer-text" style="font-size: 12px; color: var(--muted);">SILENT</div>
+          </div>
+          <div class="buzzer-dot" id="buzzer-light"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Telemetry JSON -->
+    <div class="card">
+      <h2>📡 Live REST API Telemetry Payload (`GET /api/status`)</h2>
+      <pre id="json-output"></pre>
+    </div>
+  </div>
+
+  <script>
+    // Web Audio Synthesizer for Buzzer sound
+    let audioCtx = null;
+    function playBeep() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(2400, audioCtx.currentTime); // 2.4kHz piezo frequency
+      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.15);
+    }
+
+    function simUpdate() {
+      const s1 = parseFloat(document.getElementById('s1').value);
+      const s2 = parseFloat(document.getElementById('s2').value);
+      const s3 = parseFloat(document.getElementById('s3').value);
+      const s4 = parseFloat(document.getElementById('s4').value);
+
+      document.getElementById('s1-val').innerText = s1 + ' cm';
+      document.getElementById('s2-val').innerText = s2 + ' cm';
+      document.getElementById('s3-val').innerText = s3 + ' cm';
+      document.getElementById('s4-val').innerText = s4 + ' cm';
+
+      const distances = [s1, s2, s3, s4];
+      const threshold = 35.0;
+      let freeCount = 0;
+      const states = [];
+
+      for (let i = 0; i < 4; i++) {
+        const occ = distances[i] < threshold;
+        states.push(occ);
+        if (!occ) freeCount++;
+
+        // Update Bays Visualizer
+        const card = document.getElementById(`b${i+1}-card`);
+        const icon = document.getElementById(`b${i+1}-icon`);
+        const led = document.getElementById(`b${i+1}-led`);
+        const oledSlot = document.getElementById(`oled-s${i+1}`);
+
+        if (occ) {
+          card.className = 'bay occ';
+          icon.innerText = '🚘';
+          led.className = 'led-indicator red';
+          oledSlot.innerText = `B${i+1}: [OCC]`;
+        } else {
+          card.className = 'bay free';
+          icon.innerText = '🅿️';
+          led.className = 'led-indicator green';
+          oledSlot.innerText = `B${i+1}: [FREE]`;
+        }
+      }
+
+      // Update OLED Main Screen
+      const oledAvail = document.getElementById('oled-avail');
+      const servoArm = document.getElementById('servo-arm');
+      const servoText = document.getElementById('servo-text');
+      const buzzerLight = document.getElementById('buzzer-light');
+      const buzzerText = document.getElementById('buzzer-text');
+
+      if (freeCount === 0) {
+        oledAvail.innerText = '!PARKING FULL!';
+        oledAvail.style.color = '#f43f5e';
+        servoArm.className = 'servo-arm'; // 0 deg closed
+        servoText.innerText = 'ANGLE: 0° (BARRIER LOCKED)';
+        servoText.style.color = 'var(--occ)';
+        buzzerLight.className = 'buzzer-dot active';
+        buzzerText.innerText = 'ALARM PULSING';
+        buzzerText.style.color = 'var(--occ)';
+        playBeep();
+      } else {
+        oledAvail.innerText = `FREE: ${freeCount} / 4`;
+        oledAvail.style.color = '#38bdf8';
+        servoArm.className = 'servo-arm open'; // 90 deg open
+        servoText.innerText = 'ANGLE: 90° (BARRIER OPEN)';
+        servoText.style.color = 'var(--free)';
+        buzzerLight.className = 'buzzer-dot';
+        buzzerText.innerText = 'SILENT';
+        buzzerText.style.color = 'var(--muted)';
+      }
+
+      // Generate API JSON
+      const payload = {
+        total: 4,
+        available: freeCount,
+        occupied: 4 - freeCount,
+        gateOpen: freeCount > 0,
+        slots: [
+          { id: 1, occupied: states[0], distance: s1 },
+          { id: 2, occupied: states[1], distance: s2 },
+          { id: 3, occupied: states[2], distance: s3 },
+          { id: 4, occupied: states[3], distance: s4 }
+        ]
+      };
+      document.getElementById('json-output').innerText = JSON.stringify(payload, null, 2);
+    }
+
+    simUpdate();
+  </script>
+</body>
+</html>

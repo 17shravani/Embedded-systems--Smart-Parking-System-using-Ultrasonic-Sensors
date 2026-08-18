@@ -1,0 +1,804 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Parking IoT Management Dashboard</title>
+  <style>
+    :root {
+      --bg: #070e1e;
+      --card-bg: #111c35;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.3);
+      --free: #10b981;
+      --free-bg: rgba(16, 185, 129, 0.12);
+      --free-border: rgba(16, 185, 129, 0.35);
+      --occ: #f43f5e;
+      --occ-bg: rgba(244, 63, 94, 0.12);
+      --occ-border: rgba(244, 63, 94, 0.35);
+      --ev-color: #a855f7;
+      --vip-color: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+    
+    body {
+      background: radial-gradient(circle at 50% 0%, #172545, var(--bg));
+      color: var(--text-main);
+      padding: 24px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .dashboard-wrapper {
+      max-width: 1240px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Top Navigation Bar */
+    .top-nav {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      font-size: 28px;
+      background: rgba(56, 189, 248, 0.15);
+      padding: 8px;
+      border-radius: 12px;
+      border: 1px solid var(--accent);
+    }
+
+    .brand-title h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+    }
+
+    .brand-title p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .nav-stats {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .pill-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--free);
+      color: var(--free);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--free);
+      box-shadow: 0 0 8px var(--free);
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+    /* 4 Top KPI Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 900px) { .kpi-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .kpi-grid { grid-template-columns: 1fr; } }
+
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--accent);
+    }
+
+    .kpi-card.free-card::before { background: var(--free); }
+    .kpi-card.occ-card::before { background: var(--occ); }
+    .kpi-card.rev-card::before { background: var(--vip-color); }
+
+    .kpi-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .kpi-value {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .val-free { color: var(--free); text-shadow: 0 0 15px rgba(16,185,129,0.3); }
+    .val-occ { color: var(--occ); text-shadow: 0 0 15px rgba(244,63,94,0.3); }
+    .val-total { color: var(--accent); }
+    .val-rev { color: var(--vip-color); }
+
+    /* Main Dashboard Layout (2 Columns) */
+    .main-content-grid {
+      display: grid;
+      grid-template-columns: 7fr 5fr;
+      gap: 20px;
+    }
+    @media (max-width: 1050px) { .main-content-grid { grid-template-columns: 1fr; } }
+
+    /* Left Side: Parking Bays Grid */
+    .bays-section {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .section-header h2 {
+      font-size: 16px;
+      color: var(--accent);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .bays-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 600px) { .bays-grid { grid-template-columns: 1fr; } }
+
+    .bay-card {
+      background: rgba(7, 14, 30, 0.6);
+      border-radius: 14px;
+      padding: 18px;
+      border: 2px solid transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.25s ease;
+    }
+
+    .bay-card.free {
+      border-color: var(--free-border);
+      background: var(--free-bg);
+    }
+
+    .bay-card.occupied {
+      border-color: var(--occ-border);
+      background: var(--occ-bg);
+    }
+
+    .bay-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+
+    .bay-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .bay-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 12px;
+      text-transform: uppercase;
+    }
+
+    .bay-badge.free {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--free);
+      border: 1px solid var(--free);
+    }
+
+    .bay-badge.occupied {
+      background: rgba(244, 63, 94, 0.2);
+      color: var(--occ);
+      border: 1px solid var(--occ);
+    }
+
+    .bay-icon {
+      font-size: 40px;
+      margin: 6px 0;
+    }
+
+    .slider-box {
+      width: 100%;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .slider-label b {
+      color: var(--accent);
+    }
+
+    input[type=range] {
+      width: 100%;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .telemetry-table {
+      width: 100%;
+      margin-top: 10px;
+      font-size: 12px;
+      border-collapse: collapse;
+    }
+
+    .telemetry-table tr td {
+      padding: 3px 0;
+      color: var(--text-muted);
+    }
+
+    .telemetry-table tr td:last-child {
+      text-align: right;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* Right Side: Gate Controls & Hardware Preview */
+    .right-sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .control-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+
+    /* ANPR Section */
+    .anpr-display {
+      background: #000;
+      border: 2px solid #243455;
+      border-radius: 12px;
+      padding: 14px;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+
+    .anpr-plate {
+      background: #fbbf24;
+      color: #000;
+      font-family: 'Courier New', monospace;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 2px solid #000;
+      display: inline-block;
+      margin: 8px 0;
+    }
+
+    .btn-action {
+      background: var(--accent);
+      color: #060b19;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px var(--accent-glow);
+    }
+
+    .btn-action:hover {
+      filter: brightness(1.15);
+      transform: translateY(-1px);
+    }
+
+    /* Hardware OLED Display Emulator */
+    .oled-container {
+      background: #000;
+      border: 3px solid #334155;
+      border-radius: 10px;
+      padding: 12px;
+      font-family: 'Courier New', monospace;
+      color: #38bdf8;
+      height: 120px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      box-shadow: inset 0 0 15px rgba(56,189,248,0.2);
+    }
+
+    .oled-header {
+      background: #38bdf8;
+      color: #000;
+      font-weight: bold;
+      text-align: center;
+      font-size: 11px;
+      padding: 2px 0;
+    }
+
+    .oled-main-status {
+      font-size: 15px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .oled-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+      font-size: 12px;
+    }
+
+    /* Receipt Table */
+    .receipt-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    .receipt-table th {
+      text-align: left;
+      padding: 6px 4px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    .receipt-table td {
+      padding: 6px 4px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 12px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-wrapper">
+    
+    <!-- Top Header -->
+    <header class="top-nav">
+      <div class="brand">
+        <div class="brand-icon">🚗</div>
+        <div class="brand-title">
+          <h1>Smart Parking IoT System</h1>
+          <p>Real-Time Embedded Guidance, Duration Billing & Access Control</p>
+        </div>
+      </div>
+      <div class="nav-stats">
+        <div class="pill-badge">
+          <div class="status-dot"></div>
+          <span>ESP32 Live Telemetry</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Top 4 KPI Metric Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Bays</div>
+        <div class="kpi-value val-total">4 Bays</div>
+      </div>
+      <div class="kpi-card free-card">
+        <div class="kpi-label">Available Bays</div>
+        <div class="kpi-value val-free" id="kpi-free">4</div>
+      </div>
+      <div class="kpi-card occ-card">
+        <div class="kpi-label">Occupied Bays</div>
+        <div class="kpi-value val-occ" id="kpi-occ">0</div>
+      </div>
+      <div class="kpi-card rev-card">
+        <div class="kpi-label">Total Revenue</div>
+        <div class="kpi-value val-rev" id="kpi-rev">$0.00</div>
+      </div>
+    </div>
+
+    <!-- Main Content Area (2 Columns) -->
+    <div class="main-content-grid">
+      
+      <!-- Left Column: Parking Bays 2x2 Grid -->
+      <div class="bays-section">
+        <div class="section-header">
+          <h2>🅿️ Parking Bays Occupancy & Distance Controls</h2>
+          <span style="font-size: 12px; color: var(--text-muted);">Threshold: <b>35 cm</b></span>
+        </div>
+
+        <div class="bays-grid">
+          
+          <!-- Bay 1 -->
+          <div class="bay-card free" id="bay-1">
+            <div class="bay-top-row">
+              <span class="bay-name">Bay 01</span>
+              <span class="bay-badge free" id="badge-1">FREE</span>
+            </div>
+            <div class="bay-icon" id="icon-1">🅿️</div>
+            
+            <div class="slider-box">
+              <div class="slider-label">
+                <span>Ultrasonic Distance:</span>
+                <b id="dist-1">120 cm</b>
+              </div>
+              <input type="range" min="5" max="200" value="120" id="range-1" oninput="updateBay(1)">
+            </div>
+
+            <table class="telemetry-table">
+              <tr><td>License Plate:</td><td id="plate-1">--</td></tr>
+              <tr><td>Parked Duration:</td><td id="dur-1">--</td></tr>
+              <tr><td>Live Fee ($20/hr):</td><td id="fee-1" style="color: var(--vip-color);">$0.00</td></tr>
+            </table>
+          </div>
+
+          <!-- Bay 2 -->
+          <div class="bay-card free" id="bay-2">
+            <div class="bay-top-row">
+              <span class="bay-name">Bay 02</span>
+              <span class="bay-badge free" id="badge-2">FREE</span>
+            </div>
+            <div class="bay-icon" id="icon-2">🅿️</div>
+            
+            <div class="slider-box">
+              <div class="slider-label">
+                <span>Ultrasonic Distance:</span>
+                <b id="dist-2">120 cm</b>
+              </div>
+              <input type="range" min="5" max="200" value="120" id="range-2" oninput="updateBay(2)">
+            </div>
+
+            <table class="telemetry-table">
+              <tr><td>License Plate:</td><td id="plate-2">--</td></tr>
+              <tr><td>Parked Duration:</td><td id="dur-2">--</td></tr>
+              <tr><td>Live Fee ($20/hr):</td><td id="fee-2" style="color: var(--vip-color);">$0.00</td></tr>
+            </table>
+          </div>
+
+          <!-- Bay 3 -->
+          <div class="bay-card free" id="bay-3">
+            <div class="bay-top-row">
+              <span class="bay-name">Bay 03</span>
+              <span class="bay-badge free" id="badge-3">FREE</span>
+            </div>
+            <div class="bay-icon" id="icon-3">🅿️</div>
+            
+            <div class="slider-box">
+              <div class="slider-label">
+                <span>Ultrasonic Distance:</span>
+                <b id="dist-3">120 cm</b>
+              </div>
+              <input type="range" min="5" max="200" value="120" id="range-3" oninput="updateBay(3)">
+            </div>
+
+            <table class="telemetry-table">
+              <tr><td>License Plate:</td><td id="plate-3">--</td></tr>
+              <tr><td>Parked Duration:</td><td id="dur-3">--</td></tr>
+              <tr><td>Live Fee ($20/hr):</td><td id="fee-3" style="color: var(--vip-color);">$0.00</td></tr>
+            </table>
+          </div>
+
+          <!-- Bay 4 (EV Fast Charging) -->
+          <div class="bay-card free" id="bay-4" style="border-top: 3px solid var(--ev-color);">
+            <div class="bay-top-row">
+              <span class="bay-name">Bay 04 <small style="color: var(--ev-color); font-size: 11px;">(⚡ EV)</small></span>
+              <span class="bay-badge free" id="badge-4">FREE</span>
+            </div>
+            <div class="bay-icon" id="icon-4">⚡</div>
+            
+            <div class="slider-box">
+              <div class="slider-label">
+                <span>Ultrasonic Distance:</span>
+                <b id="dist-4">120 cm</b>
+              </div>
+              <input type="range" min="5" max="200" value="120" id="range-4" oninput="updateBay(4)">
+            </div>
+
+            <table class="telemetry-table">
+              <tr><td>License Plate:</td><td id="plate-4">--</td></tr>
+              <tr><td>Parked Duration:</td><td id="dur-4">--</td></tr>
+              <tr><td>Live Fee ($25/hr):</td><td id="fee-4" style="color: var(--vip-color);">$0.00</td></tr>
+            </table>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Right Column: ANPR & Hardware Preview -->
+      <div class="right-sidebar">
+        
+        <!-- ANPR & Gate Barrier -->
+        <div class="control-card">
+          <div class="section-header">
+            <h2>📸 ANPR Entry Barrier & Gate</h2>
+            <span id="gate-state-pill" style="font-size: 12px; font-weight: bold; color: var(--free);">GATE: OPEN</span>
+          </div>
+
+          <div class="anpr-display">
+            <div style="font-size: 11px; color: var(--text-muted);">VEHICLE SCANNER (CAMERA FEED):</div>
+            <div class="anpr-plate" id="anpr-plate">MH-12-AB-9876</div>
+            <div style="font-size: 12px; color: var(--free);">STATUS: AUTHORIZED VEHICLE</div>
+          </div>
+
+          <button class="btn-action" onclick="simulateEntry()">Simulate Vehicle Entry Barrier</button>
+        </div>
+
+        <!-- Local SSD1306 OLED Graphic Display -->
+        <div class="control-card">
+          <div class="section-header">
+            <h2>📟 Hardware OLED Screen (I2C)</h2>
+            <span style="font-size: 11px; color: var(--text-muted);">128 x 64 px</span>
+          </div>
+
+          <div class="oled-container">
+            <div class="oled-header">SMART PARKING IOT</div>
+            <div class="oled-main-status" id="oled-avail">FREE: 4 / 4</div>
+            <div style="border-top: 1px dashed #38bdf8; margin: 2px 0;"></div>
+            <div class="oled-grid">
+              <div id="oled-b1">B1: [FREE]</div>
+              <div id="oled-b2">B2: [FREE]</div>
+              <div id="oled-b3">B3: [FREE]</div>
+              <div id="oled-b4">B4: [FREE]</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Checkout Receipts -->
+        <div class="control-card">
+          <div class="section-header">
+            <h2>📑 Checkout Session History</h2>
+            <span style="font-size: 11px; color: var(--text-muted);">Auto-Logged</span>
+          </div>
+
+          <table class="receipt-table">
+            <thead>
+              <tr>
+                <th>Bay</th>
+                <th>Plate Number</th>
+                <th>Dwell</th>
+                <th>Collected</th>
+              </tr>
+            </thead>
+            <tbody id="receipt-tbody">
+              <tr>
+                <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 8px 0;">
+                  No checkouts logged yet
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+      Smart Parking System | FreeRTOS Dual-Core Architecture | ESP32 + HC-SR04 Sensors + I2C SSD1306 OLED + REST API
+    </footer>
+
+  </div>
+
+  <script>
+    const samplePlates = ["MH-12-AB-9876", "DL-01-XY-4321", "KA-05-MN-2024", "TS-09-EV-7788", "GJ-06-ZZ-1100", "TN-22-KJ-5544"];
+    let plateIndex = 0;
+    let totalRevenue = 0.00;
+
+    const bayStates = [
+      { occupied: false, occupiedSince: 0, seconds: 0, plate: "--", isEV: false },
+      { occupied: false, occupiedSince: 0, seconds: 0, plate: "--", isEV: false },
+      { occupied: false, occupiedSince: 0, seconds: 0, plate: "--", isEV: false },
+      { occupied: false, occupiedSince: 0, seconds: 0, plate: "--", isEV: true }
+    ];
+
+    function updateBay(bayNum) {
+      const idx = bayNum - 1;
+      const dist = parseFloat(document.getElementById(`range-${bayNum}`).value);
+      document.getElementById(`dist-${bayNum}`).innerText = dist + ' cm';
+
+      const isOcc = dist < 35.0;
+      const card = document.getElementById(`bay-${bayNum}`);
+      const icon = document.getElementById(`icon-${bayNum}`);
+      const badge = document.getElementById(`badge-${bayNum}`);
+      const oledBay = document.getElementById(`oled-b${bayNum}`);
+
+      if (isOcc) {
+        if (!bayStates[idx].occupied) {
+          bayStates[idx].occupied = true;
+          bayStates[idx].occupiedSince = Date.now();
+          bayStates[idx].plate = samplePlates[plateIndex];
+          plateIndex = (plateIndex + 1) % samplePlates.length;
+          document.getElementById('anpr-plate').innerText = samplePlates[plateIndex];
+        }
+        card.className = 'bay-card occupied';
+        icon.innerText = idx === 3 ? '⚡' : '🚘';
+        badge.className = 'bay-badge occupied';
+        badge.innerText = 'OCCUPIED';
+        oledBay.innerText = `B${bayNum}: [OCC]`;
+        document.getElementById(`plate-${bayNum}`).innerText = bayStates[idx].plate;
+      } else {
+        if (bayStates[idx].occupied) {
+          // Checkout
+          const dwell = Math.floor((Date.now() - bayStates[idx].occupiedSince) / 1000);
+          const fee = computeFee(dwell, bayStates[idx].isEV);
+          totalRevenue += parseFloat(fee);
+          document.getElementById('kpi-rev').innerText = '$' + totalRevenue.toFixed(2);
+          logCheckout(bayNum, bayStates[idx].plate, dwell, fee);
+        }
+
+        bayStates[idx].occupied = false;
+        bayStates[idx].occupiedSince = 0;
+        bayStates[idx].seconds = 0;
+        bayStates[idx].plate = "--";
+        card.className = 'bay-card free';
+        icon.innerText = idx === 3 ? '⚡' : '🅿️';
+        badge.className = 'bay-badge free';
+        badge.innerText = 'FREE';
+        oledBay.innerText = `B${bayNum}: [FREE]`;
+        document.getElementById(`plate-${bayNum}`).innerText = '--';
+        document.getElementById(`dur-${bayNum}`).innerText = '--';
+        document.getElementById(`fee-${bayNum}`).innerText = '$0.00';
+      }
+
+      refreshKPIs();
+    }
+
+    function computeFee(sec, isEV) {
+      let rate = isEV ? 25.00 : 20.00;
+      let occ = 0;
+      bayStates.forEach(b => { if (b.occupied) occ++; });
+      if (occ >= 3) rate *= 1.25; // Surge rate
+      return ((sec / 3600) * rate).toFixed(2);
+    }
+
+    function refreshKPIs() {
+      let occ = 0;
+      bayStates.forEach(b => { if (b.occupied) occ++; });
+      const free = 4 - occ;
+
+      document.getElementById('kpi-free').innerText = free;
+      document.getElementById('kpi-occ').innerText = occ;
+
+      const oledAvail = document.getElementById('oled-avail');
+      const gatePill = document.getElementById('gate-state-pill');
+
+      if (free === 0) {
+        oledAvail.innerText = '!PARKING FULL!';
+        oledAvail.style.color = '#f43f5e';
+        gatePill.innerText = 'GATE: LOCKED 🔴';
+        gatePill.style.color = 'var(--occ)';
+      } else {
+        oledAvail.innerText = `FREE: ${free} / 4`;
+        oledAvail.style.color = '#38bdf8';
+        gatePill.innerText = 'GATE: OPEN 🟢';
+        gatePill.style.color = 'var(--free)';
+      }
+    }
+
+    function simulateEntry() {
+      let occ = 0;
+      bayStates.forEach(b => { if (b.occupied) occ++; });
+      if (occ === 4) {
+        alert('❌ CANNOT OPEN BARRIER: Parking Facility is 100% Full!');
+      } else {
+        alert('✅ ENTRY BARRIER OPENED for ' + document.getElementById('anpr-plate').innerText);
+      }
+    }
+
+    function logCheckout(bayNum, plate, sec, fee) {
+      const tbody = document.getElementById('receipt-tbody');
+      if (tbody.innerHTML.includes('No checkouts')) {
+        tbody.innerHTML = '';
+      }
+      const row = `
+        <tr>
+          <td><b>Bay 0${bayNum}</b></td>
+          <td>${plate}</td>
+          <td>${sec}s</td>
+          <td style="color: var(--vip-color); font-weight: bold;">$${fee}</td>
+        </tr>
+      `;
+      tbody.innerHTML = row + tbody.innerHTML;
+    }
+
+    // Live timer update
+    setInterval(() => {
+      bayStates.forEach((b, i) => {
+        if (b.occupied && b.occupiedSince > 0) {
+          b.seconds = Math.floor((Date.now() - b.occupiedSince) / 1000);
+          const min = Math.floor(b.seconds / 60);
+          const sec = b.seconds % 60;
+          document.getElementById(`dur-${i+1}`).innerText = `${min}m ${sec}s`;
+          
+          const fee = computeFee(b.seconds, b.isEV);
+          document.getElementById(`fee-${i+1}`).innerText = `$${fee}`;
+        }
+      });
+    }, 1000);
+
+    refreshKPIs();
+  </script>
+</body>
+</html>
