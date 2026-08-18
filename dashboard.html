@@ -3,468 +3,521 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Enterprise Smart Mobility & Autonomous Parking Cloud Platform</title>
+  <title>Enterprise Smart Parking IoT Management Platform</title>
   <style>
     :root {
-      --bg: #050b18;
-      --card-bg: #0d182e;
+      --bg: #070d1e;
+      --card-bg: #111c35;
       --card-border: rgba(255, 255, 255, 0.08);
       --accent: #38bdf8;
       --accent-glow: rgba(56, 189, 248, 0.35);
       --free: #10b981;
-      --free-glow: rgba(16, 185, 129, 0.3);
+      --free-bg: rgba(16, 185, 129, 0.1);
+      --free-border: rgba(16, 185, 129, 0.4);
       --occ: #f43f5e;
-      --occ-glow: rgba(244, 63, 94, 0.3);
-      --reserved: #f59e0b;
-      --ev-color: #a855f7;
+      --occ-bg: rgba(244, 63, 94, 0.1);
+      --occ-border: rgba(244, 63, 94, 0.4);
+      --vip: #f59e0b;
+      --vip-bg: rgba(245, 158, 11, 0.1);
+      --vip-border: rgba(245, 158, 11, 0.4);
+      --ev: #a855f7;
       --text: #f8fafc;
       --muted: #94a3b8;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { background: radial-gradient(circle at 50% 0%, #152445, var(--bg)); color: var(--text); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
-    .wrapper { max-width: 1400px; width: 100%; display: flex; flex-direction: column; gap: 18px; }
+    body { background: radial-gradient(circle at 50% 0%, #172545, var(--bg)); color: var(--text); padding: 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+    
+    .app-container { max-width: 1360px; width: 100%; display: flex; flex-direction: column; gap: 18px; }
 
-    /* Header Nav */
-    header { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 18px; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    /* Top Nav */
+    header { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
     .brand { display: flex; align-items: center; gap: 14px; }
-    .brand-icon { font-size: 30px; background: rgba(56, 189, 248, 0.15); padding: 8px 12px; border-radius: 14px; border: 1px solid var(--accent); }
+    .brand-icon { font-size: 28px; background: rgba(56, 189, 248, 0.15); padding: 8px 12px; border-radius: 12px; border: 1px solid var(--accent); }
     .brand-text h1 { font-size: 20px; color: var(--accent); font-weight: 800; }
     .brand-text p { font-size: 12px; color: var(--muted); }
     
-    .nav-actions { display: flex; align-items: center; gap: 12px; }
-    .autopilot-pill { display: flex; align-items: center; gap: 8px; background: rgba(56, 189, 248, 0.12); border: 1px solid var(--accent); padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
-    .autopilot-pill.active { background: rgba(16, 185, 129, 0.2); border-color: var(--free); color: var(--free); box-shadow: 0 0 15px rgba(16,185,129,0.4); }
-    .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+    .nav-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .btn-nav { background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: #fff; padding: 8px 14px; font-size: 12px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 6px; }
+    .btn-nav:hover { background: rgba(255,255,255,0.15); }
+    .btn-accent { background: var(--accent); color: #070d1e; border: none; }
+    .btn-accent:hover { filter: brightness(1.15); }
+    
+    .autopilot-pill { display: flex; align-items: center; gap: 8px; background: rgba(56, 189, 248, 0.1); border: 1px solid var(--accent); padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; color: #fff; }
+    .autopilot-pill.active { background: rgba(16, 185, 129, 0.2); border-color: var(--free); color: var(--free); box-shadow: 0 0 15px rgba(16,185,129,0.3); }
+    .pulse-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
     .pulse-dot.active { background: var(--free); box-shadow: 0 0 8px var(--free); animation: pulse 1s infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
-    /* Top Stats Grid */
+    /* Top KPI Cards */
     .kpi-row { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; }
-    @media (max-width: 1100px) { .kpi-row { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 650px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 1000px) { .kpi-row { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
 
     .kpi-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 14px; padding: 16px; text-align: center; position: relative; overflow: hidden; }
     .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 3px; background: var(--accent); }
     .kpi-card.free-bar::before { background: var(--free); }
     .kpi-card.occ-bar::before { background: var(--occ); }
-    .kpi-card.rev-bar::before { background: var(--reserved); }
-    .kpi-card.ev-bar::before { background: var(--ev-color); }
+    .kpi-card.rev-bar::before { background: var(--vip); }
     .kpi-card.util-bar::before { background: #06b6d4; }
+    .kpi-card.rate-bar::before { background: var(--ev); }
+
+    .kpi-label { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px; }
+    .kpi-val { font-size: 24px; font-weight: 800; }
+
+    /* Main 2-Column Split */
+    .content-grid { display: grid; grid-template-columns: 8fr 4fr; gap: 18px; }
+    @media (max-width: 1050px) { .content-grid { grid-template-columns: 1fr; } }
+
+    /* Bays Container Card */
+    .panel { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .panel-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 12px; }
+    .panel-header h2 { font-size: 16px; font-weight: 700; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+
+    /* Custom Add Bay Form Box */
+    .add-bay-box { background: rgba(7, 13, 30, 0.8); border: 1px dashed var(--accent); border-radius: 12px; padding: 14px; display: grid; grid-template-columns: 2fr 1.5fr 1fr auto; gap: 10px; align-items: center; }
+    @media (max-width: 750px) { .add-bay-box { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 480px) { .add-bay-box { grid-template-columns: 1fr; } }
+
+    .input-field { background: rgba(255,255,255,0.06); border: 1px solid var(--card-border); color: #fff; padding: 9px 12px; font-size: 12px; border-radius: 8px; width: 100%; }
+    .input-field:focus { outline: none; border-color: var(--accent); }
+
+    /* Dynamic Bays Grid */
+    .bays-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; }
     
-    .kpi-title { font-size: 11px; color: var(--muted); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px; }
-    .kpi-num { font-size: 26px; font-weight: 800; }
+    .bay-card { background: rgba(7, 14, 30, 0.6); border-radius: 14px; padding: 16px; border: 2px solid transparent; display: flex; flex-direction: column; align-items: center; transition: all 0.25s ease; position: relative; }
+    .bay-card.free { border-color: var(--free-border); background: var(--free-bg); }
+    .bay-card.occupied { border-color: var(--occ-border); background: var(--occ-bg); }
+    .bay-card.reserved { border-color: var(--vip-border); background: var(--vip-bg); }
 
-    /* 3 Column Main Section */
-    .main-grid { display: grid; grid-template-columns: 3fr 1.8fr 1.8fr; gap: 16px; }
-    @media (max-width: 1200px) { .main-grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 800px) { .main-grid { grid-template-columns: 1fr; } }
+    .bay-top { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .bay-title { font-size: 15px; font-weight: 800; }
+    
+    .bay-badge { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 12px; text-transform: uppercase; }
+    .bay-badge.free { background: rgba(16,185,129,0.2); color: var(--free); border: 1px solid var(--free); }
+    .bay-badge.occupied { background: rgba(244,63,94,0.2); color: var(--occ); border: 1px solid var(--occ); }
+    .bay-badge.reserved { background: rgba(245,158,11,0.2); color: var(--vip); border: 1px solid var(--vip); }
 
-    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
-    .card-title { font-size: 15px; font-weight: 700; color: var(--accent); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card-border); padding-bottom: 10px; }
-
-    /* Bays 2x2 Grid */
-    .bays-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
-    .bay-card { background: rgba(5, 11, 24, 0.7); border-radius: 14px; padding: 16px; border: 2px solid transparent; display: flex; flex-direction: column; align-items: center; transition: 0.3s; position: relative; }
-    .bay-card.free { border-color: rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08); }
-    .bay-card.occupied { border-color: rgba(244, 63, 94, 0.4); background: rgba(244, 63, 94, 0.1); }
-    .bay-card.reserved { border-color: rgba(245, 158, 11, 0.4); background: rgba(245, 158, 11, 0.1); }
-
-    .bay-header { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-    .bay-name { font-size: 15px; font-weight: 800; }
-    .badge { font-size: 10px; font-weight: 800; padding: 3px 10px; border-radius: 12px; text-transform: uppercase; }
-    .badge.free { background: rgba(16,185,129,0.2); color: var(--free); border: 1px solid var(--free); }
-    .badge.occupied { background: rgba(244,63,94,0.2); color: var(--occ); border: 1px solid var(--occ); }
-    .badge.reserved { background: rgba(245,158,11,0.2); color: var(--reserved); border: 1px solid var(--reserved); }
-
-    .bay-icon { font-size: 42px; margin: 4px 0; }
+    .bay-icon { font-size: 40px; margin: 4px 0; }
     
     .range-box { width: 100%; margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(255,255,255,0.06); }
     .range-lbl { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 3px; }
     input[type=range] { width: 100%; accent-color: var(--accent); cursor: pointer; }
 
-    .bay-table { width: 100%; font-size: 11px; margin-top: 6px; }
-    .bay-table tr td { padding: 2px 0; color: var(--muted); }
-    .bay-table tr td:last-child { text-align: right; font-weight: 700; color: #fff; }
+    .telemetry-tbl { width: 100%; font-size: 11px; margin-top: 6px; }
+    .telemetry-tbl tr td { padding: 2px 0; color: var(--muted); }
+    .telemetry-tbl tr td:last-child { text-align: right; font-weight: 700; color: #fff; }
 
-    .btn-reserve { background: rgba(245, 158, 11, 0.2); color: var(--reserved); border: 1px solid var(--reserved); padding: 4px 10px; font-size: 11px; font-weight: 700; border-radius: 6px; cursor: pointer; margin-top: 6px; width: 100%; transition: 0.2s; }
-    .btn-reserve:hover { background: var(--reserved); color: #000; }
+    .bay-actions { width: 100%; display: flex; gap: 6px; margin-top: 8px; }
+    .btn-card { flex: 1; padding: 6px 4px; font-size: 10px; font-weight: 700; border-radius: 6px; cursor: pointer; border: none; transition: 0.2s; }
+    .btn-card.res { background: rgba(245, 158, 11, 0.2); color: var(--vip); border: 1px solid var(--vip); }
+    .btn-card.res:hover { background: var(--vip); color: #000; }
+    .btn-card.del { background: rgba(244, 63, 94, 0.15); color: var(--occ); border: 1px solid var(--occ); max-width: 32px; }
+    .btn-card.del:hover { background: var(--occ); color: #fff; }
 
-    /* Center Column: ANPR & Hardware Screen */
-    .anpr-screen { background: #000; border: 2px solid #1e293b; border-radius: 10px; padding: 12px; text-align: center; font-family: 'Courier New', monospace; }
-    .plate-badge { background: #fbbf24; color: #000; font-size: 18px; font-weight: 800; letter-spacing: 2px; padding: 4px 12px; border-radius: 6px; display: inline-block; margin: 6px 0; border: 2px solid #000; }
+    /* Right Sidebar Controls */
+    .sidebar { display: flex; flex-direction: column; gap: 16px; }
 
-    .oled-box { background: #000; border: 3px solid #334155; border-radius: 10px; padding: 10px; font-family: 'Courier New', monospace; color: #38bdf8; height: 110px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: inset 0 0 15px rgba(56,189,248,0.2); }
+    /* ANPR Screen */
+    .anpr-box { background: #000; border: 2px solid #243455; border-radius: 12px; padding: 14px; text-align: center; }
+    .plate-badge { background: #fbbf24; color: #000; font-family: 'Courier New', monospace; font-size: 18px; font-weight: 800; letter-spacing: 2px; padding: 4px 12px; border-radius: 6px; display: inline-block; margin: 8px 0; border: 2px solid #000; }
+
+    /* OLED Screen Preview */
+    .oled-screen { background: #000; border: 3px solid #334155; border-radius: 10px; padding: 10px; font-family: 'Courier New', monospace; color: #38bdf8; height: 110px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: inset 0 0 15px rgba(56,189,248,0.2); }
     .oled-header { background: #38bdf8; color: #000; font-weight: bold; text-align: center; font-size: 11px; padding: 2px 0; }
     .oled-status { font-size: 14px; font-weight: bold; text-align: center; }
     .oled-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-size: 11px; }
 
-    .btn-primary { background: var(--accent); color: #050b18; border: none; padding: 12px; border-radius: 10px; font-size: 13px; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px var(--accent-glow); width: 100%; }
-    .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
-    
-    .btn-danger { background: rgba(244, 63, 94, 0.2); color: var(--occ); border: 1px solid var(--occ); padding: 10px; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; width: 100%; }
-    .btn-danger:hover { background: var(--occ); color: #fff; }
-
-    /* Right Column: Live Event Stream & Receipts */
-    .event-log-container { background: #000; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 11px; color: #a5f3fc; height: 160px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.06); }
-    .event-item { margin-bottom: 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.04); }
-
+    /* Table */
     .receipt-table { width: 100%; border-collapse: collapse; font-size: 11px; }
     .receipt-table th { text-align: left; padding: 5px; color: var(--muted); border-bottom: 1px solid var(--card-border); }
     .receipt-table td { padding: 5px; border-bottom: 1px solid rgba(255,255,255,0.04); }
 
-    /* Environment Telemetry Bar */
-    .env-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; font-size: 12px; }
-    .env-box { background: rgba(0,0,0,0.3); border-radius: 8px; padding: 8px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+    /* Event Log Stream */
+    .event-stream { background: #000; border-radius: 8px; padding: 10px; font-family: 'Courier New', monospace; font-size: 11px; color: #a5f3fc; height: 120px; overflow-y: auto; border: 1px solid rgba(255,255,255,0.06); }
+    .event-line { margin-bottom: 3px; }
 
     footer { text-align: center; font-size: 12px; color: var(--muted); padding: 10px 0; }
   </style>
 </head>
 <body>
-  <div class="wrapper">
+  <div class="app-container">
     
-    <!-- Top Header -->
+    <!-- Header Navigation -->
     <header>
       <div class="brand">
         <div class="brand-icon">🚗</div>
         <div class="brand-text">
-          <h1>Smart Mobility & Autonomous Parking Hub</h1>
-          <p>ESP32 FreeRTOS • Dual-Core Telematics • ANPR Vehicle Scanning • Dynamic Surge Tariff</p>
+          <h1>Smart Parking IoT Enterprise Platform</h1>
+          <p>ESP32 FreeRTOS Dual-Core • Dynamic Bay Management • Custom Vehicle ANPR</p>
         </div>
       </div>
       <div class="nav-actions">
-        <!-- Self Automating Autopilot Mode Toggle -->
+        <!-- Autopilot Bot Toggle -->
         <button class="autopilot-pill" id="autopilot-btn" onclick="toggleAutopilot()">
           <div class="pulse-dot" id="autopilot-dot"></div>
           <span id="autopilot-label">Auto-Traffic Bot: OFF</span>
         </button>
-        <button class="btn-primary" style="padding: 6px 14px; font-size: 12px;" onclick="exportCSV()">Export Audit CSV 📥</button>
+        <button class="btn-nav btn-accent" onclick="exportCSV()">Export CSV 📥</button>
       </div>
     </header>
 
-    <!-- Top KPI Grid -->
+    <!-- Top KPI Metric Cards -->
     <div class="kpi-row">
       <div class="kpi-card">
-        <div class="kpi-title">Total Capacity</div>
-        <div class="kpi-num" style="color: var(--accent);">4 Bays</div>
+        <div class="kpi-label">Total Bays</div>
+        <div class="kpi-val" style="color: var(--accent);" id="kpi-total">4</div>
       </div>
       <div class="kpi-card free-bar">
-        <div class="kpi-title">Available</div>
-        <div class="kpi-num" style="color: var(--free);" id="kpi-free">4</div>
+        <div class="kpi-label">Available</div>
+        <div class="kpi-val" style="color: var(--free);" id="kpi-free">4</div>
       </div>
       <div class="kpi-card occ-bar">
-        <div class="kpi-title">Occupied</div>
-        <div class="kpi-num" style="color: var(--occ);" id="kpi-occ">0</div>
+        <div class="kpi-label">Occupied</div>
+        <div class="kpi-val" style="color: var(--occ);" id="kpi-occ">0</div>
       </div>
       <div class="kpi-card util-bar">
-        <div class="kpi-title">Occupancy %</div>
-        <div class="kpi-num" style="color: #06b6d4;" id="kpi-util">0%</div>
+        <div class="kpi-label">Occupancy %</div>
+        <div class="kpi-val" style="color: #06b6d4;" id="kpi-util">0%</div>
       </div>
       <div class="kpi-card rev-bar">
-        <div class="kpi-title">Total Revenue</div>
-        <div class="kpi-num" style="color: var(--reserved);" id="kpi-rev">$0.00</div>
+        <div class="kpi-label">Total Revenue</div>
+        <div class="kpi-val" style="color: var(--vip);" id="kpi-rev">$0.00</div>
       </div>
-      <div class="kpi-card ev-bar">
-        <div class="kpi-title">Active Rate</div>
-        <div class="kpi-num" style="color: var(--ev-color);" id="kpi-rate">$20.00/h</div>
+      <div class="kpi-card rate-bar">
+        <div class="kpi-label">Active Tariff</div>
+        <div class="kpi-val" style="color: var(--ev);" id="kpi-rate">$20.00/h</div>
       </div>
     </div>
 
-    <!-- 3-Column Layout -->
-    <div class="main-grid">
+    <!-- Main Content Area -->
+    <div class="content-grid">
       
-      <!-- Left: 4 Bays -->
-      <div class="card">
-        <div class="card-title">
-          <span>🅿️ Live Parking Bays Telemetry</span>
-          <small style="color: var(--muted); font-size: 11px;">Threshold: <b>35 cm</b></small>
+      <!-- Left Column: Parking Bays & Add New Bay Form -->
+      <div class="panel">
+        
+        <div class="panel-header">
+          <h2>🅿️ Parking Bays Grid (Real-Time Sensors & Dynamic Slots)</h2>
+          <span style="font-size: 11px; color: var(--muted);">Threshold: <b>35 cm</b></span>
         </div>
 
-        <div class="bays-grid">
-          <!-- Bay 1 -->
-          <div class="bay-card free" id="bay-1">
-            <div class="bay-header">
-              <span class="bay-name">Bay 01</span>
-              <span class="badge free" id="badge-1">FREE</span>
-            </div>
-            <div class="bay-icon" id="icon-1">🅿️</div>
-            <div class="range-box">
-              <div class="range-lbl"><span>Distance ToF:</span><b id="dist-1">120 cm</b></div>
-              <input type="range" min="5" max="200" value="120" id="range-1" oninput="manualUpdate(1)">
-            </div>
-            <table class="bay-table">
-              <tr><td>Vehicle:</td><td id="plate-1">--</td></tr>
-              <tr><td>Duration:</td><td id="dur-1">--</td></tr>
-              <tr><td>Tariff:</td><td id="fee-1" style="color: var(--reserved);">$0.00</td></tr>
-            </table>
-            <button class="btn-reserve" id="res-btn-1" onclick="reserveBay(1)">⚡ Reserve Bay 01</button>
-          </div>
-
-          <!-- Bay 2 -->
-          <div class="bay-card free" id="bay-2">
-            <div class="bay-header">
-              <span class="bay-name">Bay 02</span>
-              <span class="badge free" id="badge-2">FREE</span>
-            </div>
-            <div class="bay-icon" id="icon-2">🅿️</div>
-            <div class="range-box">
-              <div class="range-lbl"><span>Distance ToF:</span><b id="dist-2">120 cm</b></div>
-              <input type="range" min="5" max="200" value="120" id="range-2" oninput="manualUpdate(2)">
-            </div>
-            <table class="bay-table">
-              <tr><td>Vehicle:</td><td id="plate-2">--</td></tr>
-              <tr><td>Duration:</td><td id="dur-2">--</td></tr>
-              <tr><td>Tariff:</td><td id="fee-2" style="color: var(--reserved);">$0.00</td></tr>
-            </table>
-            <button class="btn-reserve" id="res-btn-2" onclick="reserveBay(2)">⚡ Reserve Bay 02</button>
-          </div>
-
-          <!-- Bay 3 -->
-          <div class="bay-card free" id="bay-3">
-            <div class="bay-header">
-              <span class="bay-name">Bay 03</span>
-              <span class="badge free" id="badge-3">FREE</span>
-            </div>
-            <div class="bay-icon" id="icon-3">🅿️</div>
-            <div class="range-box">
-              <div class="range-lbl"><span>Distance ToF:</span><b id="dist-3">120 cm</b></div>
-              <input type="range" min="5" max="200" value="120" id="range-3" oninput="manualUpdate(3)">
-            </div>
-            <table class="bay-table">
-              <tr><td>Vehicle:</td><td id="plate-3">--</td></tr>
-              <tr><td>Duration:</td><td id="dur-3">--</td></tr>
-              <tr><td>Tariff:</td><td id="fee-3" style="color: var(--reserved);">$0.00</td></tr>
-            </table>
-            <button class="btn-reserve" id="res-btn-3" onclick="reserveBay(3)">⚡ Reserve Bay 03</button>
-          </div>
-
-          <!-- Bay 4 (EV Fast Charging) -->
-          <div class="bay-card free" id="bay-4" style="border-top: 3px solid var(--ev-color);">
-            <div class="bay-header">
-              <span class="bay-name">Bay 04 <small style="color: var(--ev-color);">(⚡ EV)</small></span>
-              <span class="badge free" id="badge-4">FREE</span>
-            </div>
-            <div class="bay-icon" id="icon-4">⚡</div>
-            <div class="range-box">
-              <div class="range-lbl"><span>Distance ToF:</span><b id="dist-4">120 cm</b></div>
-              <input type="range" min="5" max="200" value="120" id="range-4" oninput="manualUpdate(4)">
-            </div>
-            <table class="bay-table">
-              <tr><td>Vehicle:</td><td id="plate-4">--</td></tr>
-              <tr><td>Duration:</td><td id="dur-4">--</td></tr>
-              <tr><td>Tariff:</td><td id="fee-4" style="color: var(--reserved);">$0.00</td></tr>
-            </table>
-            <button class="btn-reserve" id="res-btn-4" onclick="reserveBay(4)">⚡ Reserve EV Bay</button>
-          </div>
+        <!-- Add Custom Bay Form -->
+        <div class="add-bay-box">
+          <input type="text" id="new-bay-name" class="input-field" placeholder="Bay Name (e.g. Bay 05, VIP 01)" />
+          <select id="new-bay-type" class="input-field">
+            <option value="standard">Standard Bay (🅿️ $20/h)</option>
+            <option value="ev">EV Fast-Charging (⚡ $25/h)</option>
+            <option value="vip">VIP Reserved (👑 $30/h)</option>
+            <option value="disabled">Accessible Bay (♿ $15/h)</option>
+          </select>
+          <input type="number" id="new-bay-dist" class="input-field" placeholder="Dist (cm)" value="120" min="5" max="200" />
+          <button class="btn-nav btn-accent" onclick="addCustomBay()">+ Add Bay</button>
         </div>
 
-        <!-- IoT Environmental Telemetry -->
-        <div class="env-bar">
-          <div class="env-box">🌡️ Temp: <b>24.2 °C</b></div>
-          <div class="env-box">💧 Humidity: <b>48 %</b></div>
-          <div class="env-box">🍃 AQI / CO2: <b>32 ppm (Clean)</b></div>
-          <div class="env-box">💡 Lighting: <b>100% Eco-LED</b></div>
+        <!-- Dynamic Parking Bays Grid -->
+        <div class="bays-grid" id="bays-grid">
+          <!-- Rendered dynamically via JavaScript -->
         </div>
+
       </div>
 
-      <!-- Center: ANPR & Hardware Screen -->
-      <div class="card">
-        <div class="card-title">
-          <span>📸 Automated Gate & ANPR</span>
-          <span id="gate-pill" style="font-size: 11px; font-weight: 800; color: var(--free);">GATE: OPEN 🟢</span>
+      <!-- Right Column: ANPR Access, OLED Preview, Checkout History -->
+      <div class="sidebar">
+        
+        <!-- Custom ANPR Vehicle Check-in -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2>📸 ANPR Vehicle Access Barrier</h2>
+            <span id="gate-state-pill" style="font-size: 11px; font-weight: 800; color: var(--free);">GATE: OPEN 🟢</span>
+          </div>
+
+          <div class="anpr-box">
+            <div style="font-size: 10px; color: var(--muted);">CUSTOM VEHICLE LICENSE PLATE:</div>
+            <input type="text" id="custom-plate-input" class="input-field" value="MH-12-AB-9876" style="text-align: center; font-weight: 800; letter-spacing: 2px; margin: 6px 0; background: #fbbf24; color: #000; border: 2px solid #000;" />
+            <div style="font-size: 11px; color: var(--free);" id="anpr-action-text">STATUS: AUTHORIZED VEHICLE</div>
+          </div>
+
+          <button class="btn-nav btn-accent" style="width: 100%; justify-content: center; padding: 11px;" onclick="simulateGateEntry()">Simulate Vehicle Entry Barrier</button>
         </div>
 
-        <div class="anpr-screen">
-          <div style="font-size: 10px; color: var(--muted);">AI OPTICAL RECOGNITION (ENTRY CAMERA):</div>
-          <div class="plate-badge" id="anpr-plate">MH-12-AB-9876</div>
-          <div style="font-size: 11px; color: var(--free);" id="anpr-status">● VERIFIED VEHICLE PERMIT</div>
-        </div>
+        <!-- Local OLED Display Preview -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2>📟 Hardware OLED Screen (128x64)</h2>
+            <span style="font-size: 10px; color: var(--muted);">I2C Bus</span>
+          </div>
 
-        <button class="btn-primary" onclick="simulateGate()">Simulate Vehicle Entry Barrier</button>
-
-        <div class="card-title" style="margin-top: 10px;">
-          <span>📟 SSD1306 Hardware OLED (I2C)</span>
-          <small style="color: var(--muted); font-size: 10px;">128x64</small>
-        </div>
-
-        <div class="oled-box">
-          <div class="oled-header">SMART PARKING IOT</div>
-          <div class="oled-status" id="oled-avail">FREE: 4 / 4</div>
-          <div style="border-top: 1px dashed #38bdf8; margin: 2px 0;"></div>
-          <div class="oled-grid">
-            <div id="oled-b1">B1: [FREE]</div>
-            <div id="oled-b2">B2: [FREE]</div>
-            <div id="oled-b3">B3: [FREE]</div>
-            <div id="oled-b4">B4: [FREE]</div>
+          <div class="oled-screen">
+            <div class="oled-header">SMART PARKING IOT</div>
+            <div class="oled-status" id="oled-avail">FREE: 4 / 4</div>
+            <div style="border-top: 1px dashed #38bdf8; margin: 2px 0;"></div>
+            <div class="oled-grid" id="oled-grid">
+              <!-- Dynamically populated -->
+            </div>
           </div>
         </div>
 
-        <button class="btn-danger" onclick="emergencyLockdown()">🚨 Emergency Facility Lockdown</button>
-      </div>
+        <!-- Event Logs & Checkout Receipt History -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2>🧾 Checkout Session History</h2>
+            <span style="font-size: 10px; color: var(--muted);">Auto-Logged</span>
+          </div>
 
-      <!-- Right: Real-time Event Telemetry & Checkouts -->
-      <div class="card">
-        <div class="card-title">
-          <span>📡 Live Event Stream & Logs</span>
-          <small style="color: var(--free); font-size: 10px;">● REAL-TIME</small>
+          <div style="max-height: 140px; overflow-y: auto;">
+            <table class="receipt-table">
+              <thead>
+                <tr>
+                  <th>Bay</th>
+                  <th>Plate</th>
+                  <th>Dwell</th>
+                  <th>Paid</th>
+                </tr>
+              </thead>
+              <tbody id="receipt-tbody">
+                <tr>
+                  <td colspan="4" style="text-align: center; color: var(--muted); padding: 8px 0;">No checkouts logged yet</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="event-stream" id="event-log">
+            <div class="event-line">[SYSTEM] Smart Parking IoT Platform Active.</div>
+            <div class="event-line">[REST API] Telemetry ready at /api/status.</div>
+          </div>
         </div>
 
-        <div class="event-log-container" id="event-log">
-          <div class="event-item">[SYSTEM] Smart Parking IoT Engine Initialized.</div>
-          <div class="event-item">[REST] JSON Telemetry listening on /api/status.</div>
-          <div class="event-item">[INFO] 4 Ultrasonic Transducers Online.</div>
-        </div>
-
-        <div class="card-title" style="margin-top: 10px;">
-          <span>🧾 Completed Checkout History</span>
-        </div>
-
-        <div style="max-height: 180px; overflow-y: auto;">
-          <table class="receipt-table">
-            <thead>
-              <tr>
-                <th>Bay</th>
-                <th>Plate</th>
-                <th>Dwell</th>
-                <th>Paid</th>
-              </tr>
-            </thead>
-            <tbody id="receipt-tbody">
-              <tr>
-                <td colspan="4" style="text-align: center; color: var(--muted); padding: 8px 0;">No checkouts yet</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
       </div>
 
     </div>
 
     <!-- Footer -->
     <footer>
-      Smart Parking System | FreeRTOS Dual-Core Architecture | ESP32 + HC-SR04 Sensors + I2C SSD1306 OLED + REST API
+      Smart Parking System | FreeRTOS Dual-Core Architecture | ESP32 + Ultrasonic Sensors + I2C OLED + REST API
     </footer>
 
   </div>
 
   <script>
-    const samplePlates = ["MH-12-AB-9876", "DL-01-XY-4321", "KA-05-MN-2024", "TS-09-EV-7788", "GJ-06-ZZ-1100", "TN-22-KJ-5544", "UP-16-CC-8899", "HR-26-QQ-3344"];
-    let plateIndex = 0;
+    // State management
     let totalRevenue = 0.00;
     let autopilotInterval = null;
-    let isEmergency = false;
+    const samplePlates = ["MH-12-AB-9876", "DL-01-XY-4321", "KA-05-MN-2024", "TS-09-EV-7788", "GJ-06-ZZ-1100", "TN-22-KJ-5544", "UP-16-CC-8899", "HR-26-QQ-3344"];
+    let plateIdx = 0;
 
-    const bayStates = [
-      { occupied: false, reserved: false, occupiedSince: 0, seconds: 0, plate: "--", isEV: false },
-      { occupied: false, reserved: false, occupiedSince: 0, seconds: 0, plate: "--", isEV: false },
-      { occupied: false, reserved: false, occupiedSince: 0, seconds: 0, plate: "--", isEV: false },
-      { occupied: false, reserved: false, occupiedSince: 0, seconds: 0, plate: "--", isEV: true }
+    // Dynamic Bays Array
+    let bays = [
+      { id: 1, name: "Bay 01", type: "standard", rate: 20.00, distance: 120, occupied: false, reserved: false, occupiedSince: 0, seconds: 0, plate: "--" },
+      { id: 2, name: "Bay 02", type: "standard", rate: 20.00, distance: 120, occupied: false, reserved: false, occupiedSince: 0, seconds: 0, plate: "--" },
+      { id: 3, name: "Bay 03", type: "standard", rate: 20.00, distance: 120, occupied: false, reserved: false, occupiedSince: 0, seconds: 0, plate: "--" },
+      { id: 4, name: "Bay 04 (⚡ EV)", type: "ev", rate: 25.00, distance: 120, occupied: false, reserved: false, occupiedSince: 0, seconds: 0, plate: "--" }
     ];
-
-    // Voice Synthesis Assistant
-    function speak(text) {
-      if ('speechSynthesis' in window) {
-        const u = new SpeechSynthesisUtterance(text);
-        u.rate = 1.0;
-        u.pitch = 1.0;
-        window.speechSynthesis.speak(u);
-      }
-    }
 
     function logEvent(msg) {
       const container = document.getElementById('event-log');
       const time = new Date().toLocaleTimeString();
       const div = document.createElement('div');
-      div.className = 'event-item';
+      div.className = 'event-line';
       div.innerText = `[${time}] ${msg}`;
       container.insertBefore(div, container.firstChild);
     }
 
-    function manualUpdate(bayNum) {
-      const dist = parseFloat(document.getElementById(`range-${bayNum}`).value);
-      setBayDistance(bayNum, dist);
-    }
+    function renderBays() {
+      const grid = document.getElementById('bays-grid');
+      const oledGrid = document.getElementById('oled-grid');
+      grid.innerHTML = '';
+      oledGrid.innerHTML = '';
 
-    function setBayDistance(bayNum, dist) {
-      const idx = bayNum - 1;
-      document.getElementById(`range-${bayNum}`).value = dist;
-      document.getElementById(`dist-${bayNum}`).innerText = dist.toFixed(0) + ' cm';
+      bays.forEach((bay, index) => {
+        const isOcc = bay.occupied;
+        const isRes = bay.reserved;
+        
+        let cardClass = 'bay-card free';
+        let badgeText = 'FREE';
+        let badgeClass = 'bay-badge free';
+        let icon = '🅿️';
+        if (bay.type === 'ev') icon = '⚡';
+        if (bay.type === 'vip') icon = '👑';
+        if (bay.type === 'disabled') icon = '♿';
 
-      const isOcc = dist < 35.0;
-      const card = document.getElementById(`bay-${bayNum}`);
-      const icon = document.getElementById(`icon-${bayNum}`);
-      const badge = document.getElementById(`badge-${bayNum}`);
-      const oledBay = document.getElementById(`oled-b${bayNum}`);
-
-      if (isOcc) {
-        if (!bayStates[idx].occupied) {
-          bayStates[idx].occupied = true;
-          bayStates[idx].reserved = false;
-          bayStates[idx].occupiedSince = Date.now();
-          bayStates[idx].plate = samplePlates[plateIndex];
-          plateIndex = (plateIndex + 1) % samplePlates.length;
-          document.getElementById('anpr-plate').innerText = samplePlates[plateIndex];
-          
-          logEvent(`Vehicle ${bayStates[idx].plate} parked in Bay 0${bayNum}.`);
-          speak(`Vehicle parked in Bay 0${bayNum}`);
-        }
-        card.className = 'bay-card occupied';
-        icon.innerText = idx === 3 ? '⚡' : '🚘';
-        badge.className = 'badge occupied';
-        badge.innerText = 'OCCUPIED';
-        oledBay.innerText = `B${bayNum}: [OCC]`;
-        document.getElementById(`plate-${bayNum}`).innerText = bayStates[idx].plate;
-      } else {
-        if (bayStates[idx].occupied) {
-          // Checkout
-          const dwell = Math.floor((Date.now() - bayStates[idx].occupiedSince) / 1000);
-          const fee = computeFee(dwell, bayStates[idx].isEV);
-          totalRevenue += parseFloat(fee);
-          document.getElementById('kpi-rev').innerText = '$' + totalRevenue.toFixed(2);
-          
-          logCheckout(bayNum, bayStates[idx].plate, dwell, fee);
-          logEvent(`Bay 0${bayNum} vacated. Paid $${fee} (Dwell: ${dwell}s).`);
-          speak(`Payment received. Bay 0${bayNum} is now free.`);
+        if (isOcc) {
+          cardClass = 'bay-card occupied';
+          badgeText = 'OCCUPIED';
+          badgeClass = 'bay-badge occupied';
+          icon = bay.type === 'ev' ? '⚡' : '🚘';
+        } else if (isRes) {
+          cardClass = 'bay-card reserved';
+          badgeText = 'RESERVED';
+          badgeClass = 'bay-badge reserved';
+          icon = '🔒';
         }
 
-        bayStates[idx].occupied = false;
-        bayStates[idx].occupiedSince = 0;
-        bayStates[idx].seconds = 0;
-        bayStates[idx].plate = "--";
-        card.className = bayStates[idx].reserved ? 'bay-card reserved' : 'bay-card free';
-        icon.innerText = idx === 3 ? '⚡' : (bayStates[idx].reserved ? '🔒' : '🅿️');
-        badge.className = bayStates[idx].reserved ? 'badge reserved' : 'badge free';
-        badge.innerText = bayStates[idx].reserved ? 'RESERVED' : 'FREE';
-        oledBay.innerText = `B${bayNum}: ${bayStates[idx].reserved ? '[RES]' : '[FREE]'}`;
-        document.getElementById(`plate-${bayNum}`).innerText = bayStates[idx].reserved ? 'VIP-PASS' : '--';
-        document.getElementById(`dur-${bayNum}`).innerText = '--';
-        document.getElementById(`fee-${bayNum}`).innerText = '$0.00';
-      }
+        // Render Bay Card in HTML
+        const bayCard = document.createElement('div');
+        bayCard.className = cardClass;
+        bayCard.id = `bay-card-${bay.id}`;
+        bayCard.innerHTML = `
+          <div class="bay-top">
+            <span class="bay-title">${bay.name}</span>
+            <span class="${badgeClass}" id="badge-${bay.id}">${badgeText}</span>
+          </div>
+          <div class="bay-icon">${icon}</div>
+          
+          <div class="range-box">
+            <div class="range-lbl">
+              <span>Distance ToF:</span>
+              <b id="dist-lbl-${bay.id}">${bay.distance} cm</b>
+            </div>
+            <input type="range" min="5" max="200" value="${bay.distance}" id="slider-${bay.id}" oninput="onSliderChange(${bay.id}, this.value)" />
+          </div>
+
+          <table class="telemetry-tbl">
+            <tr><td>Plate:</td><td id="plate-${bay.id}">${bay.plate}</td></tr>
+            <tr><td>Duration:</td><td id="dur-${bay.id}">--</td></tr>
+            <tr><td>Rate / Fee:</td><td id="fee-${bay.id}" style="color: var(--vip);">$0.00 ($${bay.rate}/h)</td></tr>
+          </table>
+
+          <div class="bay-actions">
+            <button class="btn-card res" onclick="toggleReserve(${bay.id})">${isRes ? 'Unlock' : 'Reserve'}</button>
+            <button class="btn-card del" onclick="deleteBay(${bay.id})" title="Delete Bay">🗑️</button>
+          </div>
+        `;
+        grid.appendChild(bayCard);
+
+        // Render in OLED grid
+        const oledItem = document.createElement('div');
+        oledItem.innerText = `B${index + 1}:${isOcc ? '[OCC]' : (isRes ? '[RES]' : '[FREE]')}`;
+        oledGrid.appendChild(oledItem);
+      });
 
       refreshKPIs();
     }
 
-    function computeFee(sec, isEV) {
-      let rate = isEV ? 25.00 : 20.00;
+    function onSliderChange(bayId, val) {
+      const bay = bays.find(b => b.id === bayId);
+      if (!bay) return;
+
+      bay.distance = parseFloat(val);
+      const isOcc = bay.distance < 35.0;
+
+      if (isOcc) {
+        if (!bay.occupied) {
+          bay.occupied = true;
+          bay.reserved = false;
+          bay.occupiedSince = Date.now();
+          
+          const customPlate = document.getElementById('custom-plate-input').value.trim();
+          bay.plate = customPlate || samplePlates[plateIdx];
+          plateIdx = (plateIdx + 1) % samplePlates.length;
+          document.getElementById('custom-plate-input').value = samplePlates[plateIdx];
+          
+          logEvent(`Vehicle ${bay.plate} parked in ${bay.name}.`);
+        }
+      } else {
+        if (bay.occupied) {
+          // Checkout
+          const dwell = Math.floor((Date.now() - bay.occupiedSince) / 1000);
+          const fee = calculateFee(dwell, bay.rate);
+          totalRevenue += parseFloat(fee);
+          document.getElementById('kpi-rev').innerText = '$' + totalRevenue.toFixed(2);
+          
+          logCheckout(bay.name, bay.plate, dwell, fee);
+          logEvent(`${bay.name} vacated. Paid $${fee} (Dwell: ${dwell}s).`);
+        }
+
+        bay.occupied = false;
+        bay.occupiedSince = 0;
+        bay.seconds = 0;
+        bay.plate = "--";
+      }
+
+      renderBays();
+    }
+
+    function calculateFee(sec, hourlyRate) {
       let occ = 0;
-      bayStates.forEach(b => { if (b.occupied) occ++; });
-      if (occ >= 3) rate *= 1.25; // Surge rate
+      bays.forEach(b => { if (b.occupied) occ++; });
+      let rate = hourlyRate;
+      if (bays.length > 0 && (occ / bays.length) >= 0.75) {
+        rate *= 1.25; // Surge rate
+      }
       return ((sec / 3600) * rate).toFixed(2);
     }
 
-    function refreshKPIs() {
-      let occ = 0;
-      bayStates.forEach(b => { if (b.occupied) occ++; });
-      const free = 4 - occ;
-      const utilPct = ((occ / 4) * 100).toFixed(0);
+    function addCustomBay() {
+      const nameInput = document.getElementById('new-bay-name');
+      const typeInput = document.getElementById('new-bay-type');
+      const distInput = document.getElementById('new-bay-dist');
 
+      const name = nameInput.value.trim() || `Bay 0${bays.length + 1}`;
+      const type = typeInput.value;
+      const dist = parseFloat(distInput.value) || 120;
+
+      let rate = 20.00;
+      if (type === 'ev') rate = 25.00;
+      if (type === 'vip') rate = 30.00;
+      if (type === 'disabled') rate = 15.00;
+
+      const newId = bays.length > 0 ? Math.max(...bays.map(b => b.id)) + 1 : 1;
+      const isOcc = dist < 35.0;
+
+      bays.push({
+        id: newId,
+        name: name,
+        type: type,
+        rate: rate,
+        distance: dist,
+        occupied: isOcc,
+        reserved: false,
+        occupiedSince: isOcc ? Date.now() : 0,
+        seconds: 0,
+        plate: isOcc ? document.getElementById('custom-plate-input').value : "--"
+      });
+
+      nameInput.value = '';
+      logEvent(`Created new parking bay: "${name}" (${type.toUpperCase()}, $${rate}/h).`);
+      renderBays();
+    }
+
+    function deleteBay(bayId) {
+      if (bays.length <= 1) {
+        alert('You must keep at least 1 parking bay.');
+        return;
+      }
+      const bay = bays.find(b => b.id === bayId);
+      bays = bays.filter(b => b.id !== bayId);
+      logEvent(`Removed parking bay: ${bay ? bay.name : bayId}`);
+      renderBays();
+    }
+
+    function toggleReserve(bayId) {
+      const bay = bays.find(b => b.id === bayId);
+      if (!bay) return;
+      if (bay.occupied) {
+        alert('Cannot reserve an occupied bay.');
+        return;
+      }
+      bay.reserved = !bay.reserved;
+      logEvent(`${bay.name} is now ${bay.reserved ? 'RESERVED' : 'UNLOCKED'}.`);
+      renderBays();
+    }
+
+    function refreshKPIs() {
+      const total = bays.length;
+      let occ = 0;
+      bays.forEach(b => { if (b.occupied) occ++; });
+      const free = total - occ;
+      const utilPct = total > 0 ? ((occ / total) * 100).toFixed(0) : 0;
+
+      document.getElementById('kpi-total').innerText = `${total} Bays`;
       document.getElementById('kpi-free').innerText = free;
       document.getElementById('kpi-occ').innerText = occ;
-      document.getElementById('kpi-util').innerText = utilPct + '%';
-      document.getElementById('kpi-rate').innerText = occ >= 3 ? '$25.00/h (Surge)' : '$20.00/h';
+      document.getElementById('kpi-util').innerText = `${utilPct}%`;
+      document.getElementById('kpi-rate').innerText = (total > 0 && (occ / total) >= 0.75) ? '$25.00/h (Surge)' : '$20.00/h';
 
       const oledAvail = document.getElementById('oled-avail');
-      const gatePill = document.getElementById('gate-pill');
+      const gatePill = document.getElementById('gate-state-pill');
 
       if (free === 0) {
         oledAvail.innerText = '!PARKING FULL!';
@@ -472,56 +525,41 @@
         gatePill.innerText = 'GATE: LOCKED 🔴';
         gatePill.style.color = 'var(--occ)';
       } else {
-        oledAvail.innerText = `FREE: ${free} / 4`;
+        oledAvail.innerText = `FREE: ${free} / ${total}`;
         oledAvail.style.color = '#38bdf8';
         gatePill.innerText = 'GATE: OPEN 🟢';
         gatePill.style.color = 'var(--free)';
       }
     }
 
-    function reserveBay(bayNum) {
-      const idx = bayNum - 1;
-      if (bayStates[idx].occupied) {
-        alert('Bay is already occupied by an active vehicle.');
-        return;
-      }
-      bayStates[idx].reserved = !bayStates[idx].reserved;
-      setBayDistance(bayNum, 120);
-      logEvent(`Bay 0${bayNum} ${bayStates[idx].reserved ? 'RESERVED for VIP Pass' : 'Reservation Cancelled'}.`);
-      speak(`Bay 0${bayNum} reserved`);
-    }
-
-    function simulateGate() {
+    function simulateGateEntry() {
       let occ = 0;
-      bayStates.forEach(b => { if (b.occupied) occ++; });
-      if (occ === 4) {
+      bays.forEach(b => { if (b.occupied) occ++; });
+      if (occ === bays.length) {
         alert('❌ ACCESS DENIED: Facility is 100% Full!');
-        speak('Facility is at maximum capacity. Access denied.');
       } else {
-        const plate = document.getElementById('anpr-plate').innerText;
-        alert(`✅ GATE BARRIER OPENED for ${plate}\nProceed to next free bay.`);
+        const plate = document.getElementById('custom-plate-input').value;
+        alert(`✅ GATE BARRIER OPENED for ${plate}\nProceed to next available parking bay.`);
         logEvent(`Gate opened for arriving vehicle ${plate}.`);
-        speak('Welcome. Gate barrier opened.');
       }
     }
 
-    function logCheckout(bayNum, plate, sec, fee) {
+    function logCheckout(bayName, plate, sec, fee) {
       const tbody = document.getElementById('receipt-tbody');
-      if (tbody.innerHTML.includes('No checkouts')) {
+      if (tbody.innerHTML.includes('No checkouts logged')) {
         tbody.innerHTML = '';
       }
       const row = `
         <tr>
-          <td><b>Bay 0${bayNum}</b></td>
+          <td><b>${bayName}</b></td>
           <td>${plate}</td>
           <td>${sec}s</td>
-          <td style="color: var(--reserved); font-weight: 800;">$${fee}</td>
+          <td style="color: var(--vip); font-weight: 800;">$${fee}</td>
         </tr>
       `;
       tbody.innerHTML = row + tbody.innerHTML;
     }
 
-    // Autopilot Bot Simulation (Self-Automated Traffic)
     function toggleAutopilot() {
       const btn = document.getElementById('autopilot-btn');
       const dot = document.getElementById('autopilot-dot');
@@ -533,40 +571,26 @@
         btn.className = 'autopilot-pill';
         dot.className = 'pulse-dot';
         label.innerText = 'Auto-Traffic Bot: OFF';
-        logEvent('Self-Automated Traffic Bot stopped.');
+        logEvent('Autopilot Traffic Bot stopped.');
       } else {
         btn.className = 'autopilot-pill active';
         dot.className = 'pulse-dot active';
         label.innerText = 'Auto-Traffic Bot: ON 🤖';
-        logEvent('Self-Automated Traffic Bot started! Simulating real vehicles...');
-        speak('Autopilot traffic simulator active');
+        logEvent('Autopilot Traffic Bot started! Simulating real vehicles...');
 
         autopilotInterval = setInterval(() => {
-          const randBay = Math.floor(Math.random() * 4) + 1;
-          const idx = randBay - 1;
-          
-          if (!bayStates[idx].occupied) {
-            // Park a car
-            setBayDistance(randBay, 10 + Math.random() * 15);
+          if (bays.length === 0) return;
+          const randIdx = Math.floor(Math.random() * bays.length);
+          const bay = bays[randIdx];
+
+          if (!bay.occupied) {
+            onSliderChange(bay.id, 10 + Math.random() * 15);
           } else {
-            // Car leaves after short stay
-            if (Date.now() - bayStates[idx].occupiedSince > 4000) {
-              setBayDistance(randBay, 120);
+            if (Date.now() - bay.occupiedSince > 4000) {
+              onSliderChange(bay.id, 120);
             }
           }
         }, 3000);
-      }
-    }
-
-    function emergencyLockdown() {
-      isEmergency = !isEmergency;
-      if (isEmergency) {
-        alert('🚨 EMERGENCY LOCKDOWN TRIGGERED!\nAll entry barriers opened for emergency exit.');
-        logEvent('🚨 EMERGENCY LOCKDOWN: Evacuate parking facility!');
-        speak('Warning! Emergency evacuation. All gates open.');
-      } else {
-        alert('Normal operations restored.');
-        logEvent('Emergency cleared. Standard security resumed.');
       }
     }
 
@@ -587,22 +611,26 @@
       a.click();
     }
 
-    // 1-second live ticker
+    // Live 1-second ticker for duration and live fee
     setInterval(() => {
-      bayStates.forEach((b, i) => {
+      bays.forEach(b => {
         if (b.occupied && b.occupiedSince > 0) {
           b.seconds = Math.floor((Date.now() - b.occupiedSince) / 1000);
           const min = Math.floor(b.seconds / 60);
           const sec = b.seconds % 60;
-          document.getElementById(`dur-${i+1}`).innerText = `${min}m ${sec}s`;
-          
-          const fee = computeFee(b.seconds, b.isEV);
-          document.getElementById(`fee-${i+1}`).innerText = `$${fee}`;
+          const durEl = document.getElementById(`dur-${b.id}`);
+          const feeEl = document.getElementById(`fee-${b.id}`);
+          if (durEl) durEl.innerText = `${min}m ${sec}s`;
+          if (feeEl) {
+            const fee = calculateFee(b.seconds, b.rate);
+            feeEl.innerText = `$${fee} ($${b.rate}/h)`;
+          }
         }
       });
     }, 1000);
 
-    refreshKPIs();
+    // Initial Render
+    renderBays();
   </script>
 </body>
 </html>
